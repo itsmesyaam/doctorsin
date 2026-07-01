@@ -4,6 +4,7 @@ import { DemoProvider } from './context/DemoContext';
 import { RoleSwitcherHUD } from './components/RoleSwitcherHUD';
 import { StoryModeHUD } from './components/StoryModeHUD';
 import { AIAssistant } from './components/AIAssistant';
+import { CinematicIntro } from './components/CinematicIntro';
 
 // Layouts
 import { PatientLayout } from './layouts/PatientLayout';
@@ -46,6 +47,14 @@ import { AdminSettings } from './pages/Admin/Settings';
 import './App.css';
 
 function App() {
+  const [showIntro, setShowIntro] = React.useState(() => {
+    return !localStorage.getItem('doctorsin_intro_played');
+  });
+
+  if (showIntro) {
+    return <CinematicIntro onComplete={() => setShowIntro(false)} />;
+  }
+
   return (
     <DemoProvider>
       <BrowserRouter>
