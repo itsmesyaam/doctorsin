@@ -19,23 +19,23 @@ export const AdminSettings: React.FC = () => {
     <div className="space-y-8 text-left max-w-3xl">
       {/* Title */}
       <div>
-        <h2 className="text-2xl font-black text-slate-800 tracking-tight">Platform Global Variables</h2>
-        <p className="text-xs text-slate-500 mt-1">Configure transaction commission rate margins, default booking fees, and diagnostic features.</p>
+        <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Platform Global Variables</h2>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Configure transaction commission rate margins, default booking fees, and diagnostic features.</p>
       </div>
 
-      <div className="bg-white border border-slate-205 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
         <form onSubmit={handleSave} className="space-y-6">
-          <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wider border-b border-slate-100 pb-3">Financial Variables</h3>
+          <h3 className="font-bold text-slate-800 dark:text-white text-sm uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-3">Financial Variables</h3>
           
           <div className="grid sm:grid-cols-2 gap-8">
             {/* Commission slider */}
             <div className="space-y-3">
               <div className="flex justify-between items-center text-xs">
-                <label className="font-bold text-slate-505 flex items-center gap-1.5">
+                <label className="font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                   <Percent size={14} className="text-slate-400" />
                   <span>Platform Commission Cut</span>
                 </label>
-                <span className="font-extrabold text-blue-650 text-sm">{commRateInput}%</span>
+                <span className="font-extrabold text-blue-650 dark:text-blue-400 text-sm">{commRateInput}%</span>
               </div>
               <input 
                 type="range" 
@@ -44,9 +44,9 @@ export const AdminSettings: React.FC = () => {
                 step="1" 
                 value={commRateInput}
                 onChange={(e) => setCommRateInput(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                className="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
               />
-              <span className="text-[10px] text-slate-400 leading-relaxed block">
+              <span className="text-[10px] text-slate-400 dark:text-slate-550 leading-relaxed block">
                 Percentage slice taken from gross physician booking fees for platform maintenance.
               </span>
             </div>
@@ -54,11 +54,11 @@ export const AdminSettings: React.FC = () => {
             {/* Base Telehealth Service Fee */}
             <div className="space-y-3">
               <div className="flex justify-between items-center text-xs">
-                <label className="font-bold text-slate-505 flex items-center gap-1.5">
+                <label className="font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                   <DollarSign size={14} className="text-slate-400" />
                   <span>Base Telehealth Conveniency Fee</span>
                 </label>
-                <span className="font-extrabold text-blue-650 text-sm">${feeInput}</span>
+                <span className="font-extrabold text-blue-650 dark:text-blue-400 text-sm">${feeInput}</span>
               </div>
               <input 
                 type="range" 
@@ -67,15 +67,15 @@ export const AdminSettings: React.FC = () => {
                 step="5" 
                 value={feeInput}
                 onChange={(e) => setFeeInput(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                className="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-600"
               />
-              <span className="text-[10px] text-slate-400 leading-relaxed block">
+              <span className="text-[10px] text-slate-400 dark:text-slate-550 leading-relaxed block">
                 Convenience fee charged per online video call setup.
               </span>
             </div>
           </div>
 
-          <div className="pt-6 border-t border-slate-100 flex items-center justify-between">
+          <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
             {isSaved ? (
               <span className="text-emerald-600 text-xs font-bold flex items-center gap-1.5 animate-pulse">
                 <CheckCircle size={16} />

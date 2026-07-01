@@ -34,28 +34,28 @@ export const Analytics: React.FC = () => {
     <div className="space-y-8 text-left">
       {/* Title */}
       <div>
-        <h2 className="text-2xl font-black text-slate-800 tracking-tight">Earnings & Clinical Analytics</h2>
-        <p className="text-xs text-slate-500 mt-1">Review revenue stats, consult volume, ratings analysis, and commission breakdowns.</p>
+        <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Earnings & Clinical Analytics</h2>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Review revenue stats, consult volume, ratings analysis, and commission breakdowns.</p>
       </div>
 
       {/* Grid Overview widgets */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
         {[
-          { name: 'Total Revenue', value: `$${totalEarnings}`, desc: 'Gross payout', icon: DollarSign, color: 'text-blue-500 bg-blue-50' },
-          { name: 'Avg Consultation Fee', value: `$${activeDoctor.fee}`, desc: 'In-clinic mode', icon: Award, color: 'text-emerald-500 bg-emerald-50' },
-          { name: 'Consultations Count', value: '184 sessions', desc: 'Last 6 months', icon: Users, color: 'text-purple-500 bg-purple-50' },
-          { name: 'Satisfaction Index', value: '4.8 / 5.0', desc: 'Top 5% in hospital', icon: Star, color: 'text-amber-500 bg-amber-50' }
+          { name: 'Total Revenue', value: `$${totalEarnings}`, desc: 'Gross payout', icon: DollarSign, color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/20' },
+          { name: 'Avg Consultation Fee', value: `$${activeDoctor.fee}`, desc: 'In-clinic mode', icon: Award, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20' },
+          { name: 'Consultations Count', value: '184 sessions', desc: 'Last 6 months', icon: Users, color: 'text-purple-500 bg-purple-50 dark:bg-purple-950/20' },
+          { name: 'Satisfaction Index', value: '4.8 / 5.0', desc: 'Top 5% in hospital', icon: Star, color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/20' }
         ].map((st, i) => {
           const Icon = st.icon;
           return (
-            <div key={i} className="bg-white border border-slate-200/80 p-5 rounded-2xl space-y-3">
+            <div key={i} className="bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-800 p-5 rounded-2xl space-y-3 shadow-sm">
               <div className={`h-10 w-10 rounded-xl ${st.color} flex items-center justify-center`}>
                 <Icon size={18} />
               </div>
               <div>
                 <span className="text-[10px] text-slate-400 font-bold block uppercase">{st.name}</span>
-                <span className="text-xl font-black text-slate-800 block mt-0.5">{st.value}</span>
-                <span className="text-[10px] text-slate-500 mt-1 block">{st.desc}</span>
+                <span className="text-xl font-black text-slate-808 dark:text-white block mt-0.5">{st.value}</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block">{st.desc}</span>
               </div>
             </div>
           );
@@ -65,13 +65,13 @@ export const Analytics: React.FC = () => {
       {/* Charts Grid */}
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Earnings Chart SVG */}
-        <div className="lg:col-span-2 bg-white border border-slate-200/85 rounded-3xl p-6 space-y-4 shadow-sm flex flex-col justify-between">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200/85 dark:border-slate-800 rounded-3xl p-6 space-y-4 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-center">
             <div>
-              <h3 className="font-bold text-slate-800 text-base">Monthly Revenue Trend</h3>
+              <h3 className="font-bold text-slate-800 dark:text-white text-base">Monthly Revenue Trend</h3>
               <p className="text-[10px] text-slate-400 mt-0.5">Consultation earnings over the last 6 months</p>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full font-bold">
+            <div className="flex items-center gap-1.5 text-xs text-blue-600 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1 rounded-full font-bold">
               <TrendingUp size={14} />
               <span>+18.4% MoM</span>
             </div>
@@ -84,8 +84,8 @@ export const Analytics: React.FC = () => {
               className="w-full min-w-[500px] h-auto overflow-visible select-none"
             >
               {/* Grid Lines */}
-              <line x1={padding} y1={svgHeight - padding} x2={svgWidth - padding} y2={svgHeight - padding} stroke="#e2e8f0" strokeWidth="1.5" />
-              <line x1={padding} y1={padding} x2={svgWidth - padding} y2={padding} stroke="#f1f5f9" strokeDasharray="4 4" />
+              <line x1={padding} y1={svgHeight - padding} x2={svgWidth - padding} y2={svgHeight - padding} className="stroke-slate-200 dark:stroke-slate-800" strokeWidth="1.5" />
+              <line x1={padding} y1={padding} x2={svgWidth - padding} y2={padding} className="stroke-slate-100 dark:stroke-slate-900" strokeDasharray="4 4" />
               
               {/* Fill Area Gradient */}
               <defs>
@@ -109,7 +109,7 @@ export const Analytics: React.FC = () => {
                     x={p.x} 
                     y={p.y - 12} 
                     textAnchor="middle" 
-                    className="text-[10px] font-bold fill-slate-800 bg-white"
+                    className="text-[10px] font-bold fill-slate-805 dark:fill-slate-205"
                   >
                     ${p.val}
                   </text>
@@ -136,11 +136,11 @@ export const Analytics: React.FC = () => {
         </div>
 
         {/* Right card: Patient ratings & feedback */}
-        <div className="bg-white border border-slate-200/85 rounded-3xl p-6 space-y-6 shadow-sm text-left">
-          <h3 className="font-bold text-slate-800 text-base">Ratings Summary</h3>
+        <div className="bg-white dark:bg-slate-900 border border-slate-202/85 dark:border-slate-800 rounded-3xl p-6 space-y-6 shadow-sm text-left">
+          <h3 className="font-bold text-slate-800 dark:text-white text-base">Ratings Summary</h3>
           
           <div className="flex items-center gap-4">
-            <h4 className="text-4xl font-black text-slate-800">{activeDoctor.rating}</h4>
+            <h4 className="text-4xl font-black text-slate-800 dark:text-white">{activeDoctor.rating}</h4>
             <div>
               <div className="flex gap-0.5 text-amber-500">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -151,7 +151,7 @@ export const Analytics: React.FC = () => {
             </div>
           </div>
 
-          <div className="space-y-3.5 border-t border-slate-100 pt-4 text-xs">
+          <div className="space-y-3.5 border-t border-slate-100 dark:border-slate-850 pt-4 text-xs">
             {[
               { label: '5 Star reviews', percent: 84 },
               { label: '4 Star reviews', percent: 12 },
@@ -159,11 +159,11 @@ export const Analytics: React.FC = () => {
               { label: 'Under 3 Stars', percent: 1 }
             ].map((rat, i) => (
               <div key={i} className="space-y-1">
-                <div className="flex justify-between font-semibold text-slate-655 text-[11px]">
+                <div className="flex justify-between font-semibold text-slate-655 dark:text-slate-400 text-[11px]">
                   <span>{rat.label}</span>
                   <span>{rat.percent}%</span>
                 </div>
-                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                   <div className="h-full bg-amber-500 rounded-full" style={{ width: `${rat.percent}%` }} />
                 </div>
               </div>
