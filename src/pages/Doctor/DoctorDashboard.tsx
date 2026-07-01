@@ -79,7 +79,7 @@ export const DoctorDashboard: React.FC = () => {
         </div>
         <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-4 rounded-3xl shadow-sm">
           <span className="text-[9px] text-slate-450 dark:text-slate-500 font-bold block uppercase">Today Earnings</span>
-          <span className="text-lg font-black text-emerald-600 dark:text-emerald-400 block mt-1">${totalEarnings + 400}</span>
+          <span className="text-lg font-black text-emerald-600 dark:text-emerald-400 block mt-1">₹{totalEarnings + 400}</span>
           <span className="text-[9px] text-slate-500 mt-1.5 block">Payout processing</span>
         </div>
       </div>

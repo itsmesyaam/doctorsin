@@ -78,7 +78,7 @@ export const DoctorProfile: React.FC = () => {
               </div>
 
               <div className="space-y-1.5 text-left">
-                <label className="text-[10px] font-bold text-slate-455 uppercase">Consultation Fee ($)</label>
+                <label className="text-[10px] font-bold text-slate-455 uppercase">Consultation Fee (₹)</label>
                 <div className="flex items-center gap-2 bg-slate-55 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs">
                   <DollarSign size={14} className="text-slate-400" />
                   <input type="number" defaultValue={activeDoctor.fee} className="bg-transparent border-none outline-none w-full font-medium dark:text-white" />

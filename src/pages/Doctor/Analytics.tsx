@@ -41,8 +41,8 @@ export const Analytics: React.FC = () => {
       {/* Grid Overview widgets */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
         {[
-          { name: 'Total Revenue', value: `$${totalEarnings}`, desc: 'Gross payout', icon: DollarSign, color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/20' },
-          { name: 'Avg Consultation Fee', value: `$${activeDoctor.fee}`, desc: 'In-clinic mode', icon: Award, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20' },
+          { name: 'Total Revenue', value: `₹${totalEarnings}`, desc: 'Gross payout', icon: DollarSign, color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/20' },
+          { name: 'Avg Consultation Fee', value: `₹${activeDoctor.fee}`, desc: 'In-clinic mode', icon: Award, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20' },
           { name: 'Consultations Count', value: '184 sessions', desc: 'Last 6 months', icon: Users, color: 'text-purple-500 bg-purple-50 dark:bg-purple-950/20' },
           { name: 'Satisfaction Index', value: '4.8 / 5.0', desc: 'Top 5% in hospital', icon: Star, color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/20' }
         ].map((st, i) => {

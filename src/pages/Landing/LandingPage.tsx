@@ -210,7 +210,7 @@ export const LandingPage: React.FC = () => {
                         </div>
                       </div>
                       <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                        <span className="text-sm font-black text-slate-800 dark:text-white">${doc.fee}</span>
+                        <span className="text-sm font-black text-slate-800 dark:text-white">₹{doc.fee}</span>
                         <button 
                           onClick={() => handleBookNow(doc.id)}
                           className="bg-blue-600 text-white hover:bg-blue-700 text-[10px] font-bold px-3.5 py-1.5 rounded-xl cursor-pointer"
@@ -273,7 +273,7 @@ export const LandingPage: React.FC = () => {
               </div>
 
               <div className="mt-5 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                <span className="text-xs font-black text-slate-800 dark:text-white">${doc.fee}</span>
+                <span className="text-xs font-black text-slate-800 dark:text-white">₹{doc.fee}</span>
                 <button 
                   onClick={() => handleBookNow(doc.id)}
                   className="bg-blue-600 text-white hover:bg-blue-700 text-[10px] font-bold px-3.5 py-1.5 rounded-xl cursor-pointer"

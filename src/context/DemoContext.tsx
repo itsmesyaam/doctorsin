@@ -210,7 +210,7 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Active placeholders for dashboards
   const activePatient = patients.find(p => p.id === 'pat-active') || {
     id: 'pat-active',
-    name: 'Alexander Fleming',
+    name: 'Hari Krishnan',
     email: 'patient@doctorsin.com',
     phone: '9876543210',
     gender: 'Male',
@@ -222,25 +222,25 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const activeDoctor = doctors.find(d => d.id === 'doc-1') || {
     id: 'doc-1',
-    name: 'Dr. Haridas',
-    specialty: 'Cardiologist',
+    name: 'Dr. Haridas Menon',
+    specialty: 'Cardiology',
     experience: 18,
     rating: 4.8,
     reviewsCount: 128,
-    clinicName: 'Apollo Premium Clinic',
+    clinicName: 'Aster Medcity',
     locality: 'Edappally',
     fee: 800,
     bio: 'Experienced Cardiologist',
     imageUrl: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=200',
     availability: { days: ['Mon', 'Wed'], slots: ['09:00 AM', '10:00 AM'] },
     hospitalId: 'hosp-1',
-    hospitalName: 'Apollo Premium Clinic',
+    hospitalName: 'Aster Medcity',
     status: 'active' as const
   };
 
   const activeHospital = hospitals.find(h => h.id === 'hosp-1') || {
     id: 'hosp-1',
-    name: 'Apollo Premium Clinic',
+    name: 'Aster Medcity',
     address: 'Edappally, Kochi',
     rating: 4.7,
     bedsTotal: 150,
@@ -248,7 +248,7 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
     departments: ['Cardiology', 'Dermatology'],
     revenue: [80000, 92000, 85000, 95000, 110000, 105000],
     doctorsCount: 12,
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?auto=format&fit=crop&q=80&w=400',
     status: 'approved' as const
   };
 

@@ -25,6 +25,11 @@ export const FindDoctor: React.FC = () => {
   const [apptReason, setApptReason] = useState('');
   const [consultType, setConsultType] = useState<'video' | 'in-person'>('video');
   const [isBookingSubmitting, setIsBookingSubmitting] = useState(false);
+  const [bookFor, setBookFor] = useState<'self' | 'family'>('self');
+  const [familyRelation, setFamilyRelation] = useState<'parent' | 'child' | 'spouse' | 'senior'>('parent');
+  const [familyPatientName, setFamilyPatientName] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card'>('upi');
+  const [upiId, setUpiId] = useState('');
 
   // Pre-selected doctor check (from landing page quick book or auto-booking tour)
   useEffect(() => {
@@ -243,7 +248,7 @@ export const FindDoctor: React.FC = () => {
                   <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                     <div>
                       <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Cons. Fee</span>
-                      <span className="text-lg font-black text-slate-850 dark:text-white">${doc.fee}</span>
+                      <span className="text-lg font-black text-slate-850 dark:text-white">₹{doc.fee}</span>
                     </div>
                     <button
                       onClick={() => setBookingDoc(doc)}
@@ -354,16 +359,73 @@ export const FindDoctor: React.FC = () => {
                     </button>
                   </div>
                 )}
-
                 {/* STEP 2: BOOKING DETAILS & PAYMENT */}
                 {bookingStep === 2 && (
                   <form onSubmit={handleBookingSubmit} className="space-y-6 text-left">
+                    {/* Family Workflow Selector */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-500">Patient Details (Booking For)</label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <button
+                          type="button"
+                          onClick={() => setBookFor('self')}
+                          className={`py-2.5 rounded-xl border text-center text-xs font-bold transition-all ${
+                            bookFor === 'self'
+                              ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 text-blue-650'
+                              : 'border-slate-200 dark:border-slate-800 text-slate-550 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850'
+                          }`}
+                        >
+                          Self (Hari Krishnan)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setBookFor('family')}
+                          className={`py-2.5 rounded-xl border text-center text-xs font-bold transition-all ${
+                            bookFor === 'family'
+                              ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 text-blue-650'
+                              : 'border-slate-200 dark:border-slate-800 text-slate-550 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850'
+                          }`}
+                        >
+                          Family Member
+                        </button>
+                      </div>
+                    </div>
+
+                    {bookFor === 'family' && (
+                      <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50 dark:bg-slate-950/40 rounded-2xl border border-slate-100 dark:border-slate-850 animate-fade-in">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold text-slate-450 uppercase">Relationship</label>
+                          <select
+                            value={familyRelation}
+                            onChange={(e) => setFamilyRelation(e.target.value as any)}
+                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-2 py-2 text-xs font-semibold outline-none dark:text-white"
+                          >
+                            <option value="parent">Parent</option>
+                            <option value="child">Child</option>
+                            <option value="spouse">Spouse</option>
+                            <option value="senior">Senior Citizen</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-bold text-slate-450 uppercase">Patient Name</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="Full Name"
+                            value={familyPatientName}
+                            onChange={(e) => setFamilyPatientName(e.target.value)}
+                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-medium outline-none dark:text-white"
+                          />
+                        </div>
+                      </div>
+                    )}
+
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-slate-500">Reason for Consultation</label>
                       <textarea
                         required
-                        rows={3}
-                        placeholder="e.g., Asthma follow-up..."
+                        rows={2}
+                        placeholder="e.g., Asthma checkup, high fever..."
                         value={apptReason}
                         onChange={(e) => setApptReason(e.target.value)}
                         className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs outline-none focus:border-blue-500 dark:text-white"
@@ -401,48 +463,84 @@ export const FindDoctor: React.FC = () => {
                     </div>
 
                     <div className="bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 p-4 rounded-2xl space-y-3">
-                      <h6 className="font-bold text-slate-850 dark:text-white text-xs">Booking Invoice</h6>
+                      <h6 className="font-bold text-slate-850 dark:text-white text-xs">Razorpay Secure Invoice</h6>
                       <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
                         <div className="flex justify-between">
                           <span>Consultation Fee</span>
-                          <span>${bookingDoc.fee}</span>
+                          <span>₹{bookingDoc.fee}</span>
                         </div>
                         <div className="flex justify-between border-t border-slate-200/50 dark:border-slate-800 pt-2 font-bold text-slate-800 dark:text-white">
                           <span>Total to Pay</span>
-                          <span>${bookingDoc.fee}</span>
+                          <span>₹{bookingDoc.fee}</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Mock Payment */}
+                    {/* Indian Payment Methods Selector */}
                     <div className="space-y-3">
-                      <h6 className="font-bold text-slate-800 dark:text-white text-xs uppercase tracking-wider flex items-center gap-1.5">
-                        <CreditCard size={14} className="text-slate-400" />
-                        <span>Secure Credit Card Payment</span>
-                      </h6>
-                      <div className="grid grid-cols-3 gap-2">
-                        <input 
-                          type="text" 
-                          required
-                          placeholder="Card Number" 
-                          defaultValue="4242 4242 4242 4242"
-                          className="col-span-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs outline-none focus:border-blue-500 font-mono dark:text-white"
-                        />
-                        <input 
-                          type="text" 
-                          required
-                          placeholder="MM/YY" 
-                          defaultValue="12/28"
-                          className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs outline-none focus:border-blue-500 font-mono dark:text-white"
-                        />
-                        <input 
-                          type="password" 
-                          required
-                          placeholder="CVV" 
-                          defaultValue="123"
-                          className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs outline-none focus:border-blue-500 font-mono dark:text-white"
-                        />
+                      <label className="text-xs font-bold text-slate-500 block">Select Payment Method</label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod('upi')}
+                          className={`p-3 rounded-xl border text-center text-xs font-bold transition-all ${
+                            paymentMethod === 'upi'
+                              ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 text-blue-650'
+                              : 'border-slate-200 dark:border-slate-800 text-slate-550 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850'
+                          }`}
+                        >
+                          UPI (GPay, Paytm, PhonePe)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod('card')}
+                          className={`p-3 rounded-xl border text-center text-xs font-bold transition-all ${
+                            paymentMethod === 'card'
+                              ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 text-blue-650'
+                              : 'border-slate-200 dark:border-slate-800 text-slate-550 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850'
+                          }`}
+                        >
+                          Debit / Credit Card
+                        </button>
                       </div>
+
+                      {paymentMethod === 'upi' ? (
+                        <div className="space-y-2">
+                          <input 
+                            type="text" 
+                            required
+                            placeholder="Enter UPI ID (e.g., name@okaxis)" 
+                            value={upiId}
+                            onChange={(e) => setUpiId(e.target.value)}
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs outline-none focus:border-blue-500 font-mono dark:text-white"
+                          />
+                          <span className="text-[9px] text-slate-400 block font-semibold">Pay securely via Razorpay gateway transfer</span>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-3 gap-2">
+                          <input 
+                            type="text" 
+                            required
+                            placeholder="Card Number" 
+                            defaultValue="4242 4242 4242 4242"
+                            className="col-span-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs outline-none focus:border-blue-500 font-mono dark:text-white"
+                          />
+                          <input 
+                            type="text" 
+                            required
+                            placeholder="MM/YY" 
+                            defaultValue="12/28"
+                            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs outline-none focus:border-blue-500 font-mono dark:text-white"
+                          />
+                          <input 
+                            type="password" 
+                            required
+                            placeholder="CVV" 
+                            defaultValue="123"
+                            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs outline-none focus:border-blue-500 font-mono dark:text-white"
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex gap-3">
@@ -461,12 +559,12 @@ export const FindDoctor: React.FC = () => {
                         {isBookingSubmitting ? (
                           <>
                             <Loader2 size={16} className="animate-spin" />
-                            <span>Processing Secure Pay...</span>
+                            <span>Processing Payment...</span>
                           </>
                         ) : (
                           <>
                             <Shield size={16} />
-                            <span>Pay & Confirm Booking</span>
+                            <span>Pay & Book Appointment</span>
                           </>
                         )}
                       </button>
@@ -509,7 +607,7 @@ export const FindDoctor: React.FC = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-450 dark:text-slate-500">Payment Status</span>
-                          <span className="font-bold text-emerald-600">Settled (${bookingDoc.fee})</span>
+                          <span className="font-bold text-emerald-600">Settled (₹{bookingDoc.fee})</span>
                         </div>
                       </div>
 

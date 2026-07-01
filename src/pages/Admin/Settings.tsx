@@ -58,7 +58,7 @@ export const AdminSettings: React.FC = () => {
                   <DollarSign size={14} className="text-slate-400" />
                   <span>Base Telehealth Conveniency Fee</span>
                 </label>
-                <span className="font-extrabold text-blue-650 dark:text-blue-400 text-sm">${feeInput}</span>
+                <span className="font-extrabold text-blue-650 dark:text-blue-400 text-sm">₹{feeInput}</span>
               </div>
               <input 
                 type="range" 

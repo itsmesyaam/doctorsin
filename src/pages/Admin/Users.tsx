@@ -28,10 +28,10 @@ export const UsersDirectory: React.FC = () => {
           <div className="flex justify-between items-start">
             <div className="flex gap-3">
               <div className="h-10 w-10 bg-blue-50 dark:bg-blue-955/40 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center font-bold text-xs shrink-0">
-                AF
+                HK
               </div>
               <div>
-                <h4 className="font-bold text-slate-800 dark:text-white text-sm leading-tight">Alexander Fleming</h4>
+                <h4 className="font-bold text-slate-800 dark:text-white text-sm leading-tight">Hari Krishnan</h4>
                 <span className="text-[10px] text-slate-400 block mt-0.5">Male • 29 yrs</span>
               </div>
             </div>

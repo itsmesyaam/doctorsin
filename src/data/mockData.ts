@@ -115,34 +115,32 @@ export interface Notification {
 
 // Generators
 const SPECIALTIES = [
-  'Cardiologist', 'Dermatologist', 'Pediatrician', 'Orthopedic Surgeon', 
-  'Neurologist', 'Gynecologist', 'Oncologist', 'General Physician', 
-  'Psychiatrist', 'Ophthalmologist'
+  'Cardiology', 'Dermatology', 'Paediatrics', 'Orthopaedics', 
+  'Neurology', 'Gynecology', 'General Medicine', 'ENT', 
+  'Psychiatry', 'Ophthalmology'
 ];
 
 const LOCALITIES = [
-  'Edappally', 'Kaloor', 'Fort Kochi', 'Marine Drive', 'Kakkanad', 
-  'Panampilly Nagar', 'Vytila', 'Aluva', 'Tripunithura', 'Ravipuram'
+  'Kakkanad', 'Edappally', 'Aluva', 'Thrippunithura', 'Kalamassery', 
+  'Angamaly', 'Fort Kochi', 'Marine Drive', 'Kaloor', 'Vytila'
 ];
 
 const DOCTOR_NAMES = [
-  'Haridas', 'Anjali Menon', 'Siddharth Nair', 'Vikram Sen', 'Priya Sharma',
-  'Rohan Verma', 'Sneha Reddy', 'Amit Patel', 'Neha Kapoor', 'Arjun Mehta',
+  'Haridas Menon', 'Anjali Nair', 'Siddharth Kurian', 'Thomas Abraham', 'Faisal Rahman',
+  'Rohan Varghese', 'Sneha Pillai', 'Amit Sen', 'Neha Joseph', 'Arjun Madhavan',
   'Meera Krishnan', 'Rahul Bose', 'Divya Iyer', 'Sanjay Dutt', 'Kriti Sanon',
   'Varun Dhawan', 'Shraddha Kapoor', 'Aditya Roy', 'Alia Bhatt', 'Ranbir Kapoor'
 ];
 
 const HOSPITAL_NAMES = [
-  'Apollo Premium Clinic', 'Aster Medcity', 'Amrita Hospital', 'Fortis Healthcare', 
-  'Manipal Specialist Hospital', 'Max Super Speciality', 'Medanta Medicentre', 
-  'Kokilaben Dhirubhai Hospital', 'Apollo 24/7 Centre', 'Care & Cure Clinic',
-  'Lakeshore Hospital', 'Renai Medicity', 'Sunrise Hospital', 'Medical Trust Hospital',
+  'Aster Medcity', 'Rajagiri Hospital', 'Amrita Hospital', 'Renai Medicity', 
+  'Lakeshore Hospital', 'VPS Lakeshore', 'Sunrise Hospital', 'Medical Trust Hospital',
   'Gautham Hospital', 'Silver Line Clinic', 'Saraf Hospital', 'PVS Memorial Hospital',
   'Cochin Hospital', 'City Clinic Kochi'
 ];
 
 const DEPARTMENTS_LIST = [
-  'Cardiology', 'Dermatology', 'Pediatrics', 'Orthopedics', 'Neurology', 
+  'Cardiology', 'Dermatology', 'Paediatrics', 'Orthopaedics', 'Neurology', 
   'Gynecology & Obstetrics', 'Oncology', 'Emergency Medicine', 'Ophthalmology', 
   'Outpatient Clinic', 'ICU', 'Radiology'
 ];
@@ -150,14 +148,12 @@ const DEPARTMENTS_LIST = [
 const FIRST_NAMES = [
   'Aarav', 'Vivaan', 'Aditya', 'Vihaan', 'Arjun', 'Sai', 'Reyansh', 'Aavya', 'Diya', 'Ananya',
   'Ishaan', 'Shaurya', 'Aanya', 'Pihu', 'Prisha', 'Rohan', 'Kabir', 'Riya', 'Kavya', 'Myra',
-  'Dev', 'Atharv', 'Kiara', 'Anya', 'Samaira', 'Siddharth', 'Varun', 'Gaurav', 'Tara', 'Anika',
-  'John', 'Sarah', 'David', 'Emily', 'Michael', 'Jessica', 'Robert', 'Ashley', 'James', 'Amanda'
+  'Dev', 'Atharv', 'Kiara', 'Anya', 'Samaira', 'Siddharth', 'Varun', 'Gaurav', 'Tara', 'Anika'
 ];
 
 const LAST_NAMES = [
   'Sharma', 'Verma', 'Nair', 'Menon', 'Reddy', 'Patel', 'Kapoor', 'Mehta', 'Krishnan', 'Bose',
-  'Iyer', 'Sen', 'Dutt', 'Sanon', 'Dhawan', 'Bhatt', 'Kapoor', 'Roy', 'Singh', 'Gupta',
-  'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Wilson', 'Anderson', 'Taylor'
+  'Iyer', 'Sen', 'Varghese', 'Kurian', 'Abraham', 'Nambiar', 'Pillai', 'Panicker', 'Shenoy', 'Gupta'
 ];
 
 // Helper functions
@@ -169,16 +165,16 @@ const getRandomRating = (): number => parseFloat((Math.random() * 1.5 + 3.5).toF
 export function generateSeedData() {
   console.log("Generating realistic seed data...");
   
-  // 1. Generate 20 Hospitals
+  // 1. Generate Hospitals
   const hospitals: Hospital[] = HOSPITAL_NAMES.map((name, index) => {
-    const isApproved = index < 18 ? 'approved' : 'pending'; // 2 pending hospitals for admin review
+    const isApproved = index < 12 ? 'approved' : 'pending'; // pending hospitals for admin review
     const bedsTotal = getRandomInt(80, 300);
     const bedsOccupied = getRandomInt(30, bedsTotal - 10);
     const deptsCount = getRandomInt(5, 9);
     const depts = [...DEPARTMENTS_LIST].sort(() => 0.5 - Math.random()).slice(0, deptsCount);
     
-    // Last 6 months revenue in USD ($)
-    const revenue = Array.from({ length: 6 }, () => getRandomInt(45000, 120000));
+    // Last 6 months revenue in INR (₹)
+    const revenue = Array.from({ length: 6 }, () => getRandomInt(450000, 1200000));
     
     return {
       id: `hosp-${index + 1}`,
@@ -195,12 +191,11 @@ export function generateSeedData() {
     };
   });
 
-  // 2. Generate 100 Doctors
+  // 2. Generate Doctors
   const doctors: Doctor[] = [];
   
-  // First, generate 20 specific ones using DOCTOR_NAMES
-  for (let i = 0; i < 100; i++) {
-    const isPending = i >= 95; // 5 pending doctors for admin verification flow
+  for (let i = 0; i < 60; i++) {
+    const isPending = i >= 56; // 4 pending doctors for admin verification flow
     const hosp = getRandomItem(hospitals.filter(h => h.status === 'approved'));
     hosp.doctorsCount += 1;
     
@@ -208,7 +203,7 @@ export function generateSeedData() {
     const name = i < DOCTOR_NAMES.length ? `Dr. ${DOCTOR_NAMES[i]}` : `Dr. ${getRandomItem(FIRST_NAMES)} ${getRandomItem(LAST_NAMES)}`;
     const rating = getRandomRating();
     const reviewsCount = getRandomInt(10, 240);
-    const fee = getRandomItem([400, 500, 600, 800, 1000, 1200]);
+    const fee = getRandomItem([300, 400, 500, 700, 800, 1000]);
     const experience = getRandomInt(4, 28);
     
     const availabilityDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -226,7 +221,7 @@ export function generateSeedData() {
       clinicName: hosp.name,
       locality: hosp.address.split(',')[1].trim(),
       fee,
-      bio: `${name} is an experienced ${specialty.toLowerCase()} at ${hosp.name}. Specializing in modern medical practices and diagnostics with ${experience} years of clinical research. Dedicated to providing patient-centered, empathetic care.`,
+      bio: `${name} is an experienced specialist in ${specialty} at ${hosp.name}. Specializing in modern medical practices and diagnostics with ${experience} years of clinical research. Dedicated to providing patient-centered, empathetic care in Kerala.`,
       imageUrl: `https://images.unsplash.com/photo-${i % 2 === 0 ? '1622253692010-333f2da6031d' : '1537368910025-700350fe46c7'}?auto=format&fit=crop&q=80&w=200`,
       availability: {
         days: days.sort((a,b) => availabilityDays.indexOf(a) - availabilityDays.indexOf(b)),
@@ -238,8 +233,8 @@ export function generateSeedData() {
     });
   }
 
-  // 3. Generate 500 Patients
-  const patients: Patient[] = Array.from({ length: 500 }, (_, i) => {
+  // 3. Generate Patients
+  const patients: Patient[] = Array.from({ length: 100 }, (_, i) => {
     const fName = getRandomItem(FIRST_NAMES);
     const lName = getRandomItem(LAST_NAMES);
     const age = getRandomInt(18, 75);
@@ -269,15 +264,14 @@ export function generateSeedData() {
     };
   });
 
-  // Pre-seed some Appointments for demonstration (around 40 past and 5 upcoming)
+  // Pre-seed some Appointments for demonstration (around 20 past and 5 upcoming)
   const appointments: Appointment[] = [];
   const prescriptions: Prescription[] = [];
   const reports: MedicalReport[] = [];
   
-  // Let's create an active patient for the login experience
-  // We'll set the active patient as pat-1 (e.g. Test Patient)
+  // Set the active patient as pat-active (Hari Krishnan)
   patients[0].id = 'pat-active';
-  patients[0].name = 'Alexander Fleming';
+  patients[0].name = 'Hari Krishnan';
   patients[0].email = 'patient@doctorsin.com';
   patients[0].phone = '9876543210';
   patients[0].age = 29;
@@ -289,7 +283,7 @@ export function generateSeedData() {
   const activeDocIds = doctors.filter(d => d.status === 'active').map(d => d.id);
   const getDoc = (id: string) => doctors.find(d => d.id === id)!;
 
-  // Let's seed 8 appointments for the active user (some completed, some upcoming, some cancelled)
+  // Seeding active patient appointments
   const activeApptsData = [
     { id: 'appt-a1', date: '2026-06-15', slot: '10:00 AM', status: 'completed', type: 'video', reason: 'Routine checkup for asthma' },
     { id: 'appt-a2', date: '2026-06-22', slot: '11:00 AM', status: 'completed', type: 'in-person', reason: 'Skin rash inspection' },
@@ -305,7 +299,7 @@ export function generateSeedData() {
     const appt: Appointment = {
       id: a.id,
       patientId: 'pat-active',
-      patientName: 'Alexander Fleming',
+      patientName: 'Hari Krishnan',
       doctorId: docId,
       doctorName: doc.name,
       doctorSpecialty: doc.specialty,
@@ -318,7 +312,7 @@ export function generateSeedData() {
       reason: a.reason,
       fee: doc.fee,
       chatHistory: [
-        { sender: 'doctor', text: 'Hello Alexander! Let me know if you are experiencing any symptoms.', time: '09:55 AM' },
+        { sender: 'doctor', text: 'Hello Hari! Let me know if you are experiencing any symptoms.', time: '09:55 AM' },
         { sender: 'patient', text: 'Hi Doctor, yes, just some mild breathing tightness.', time: '09:57 AM' }
       ]
     };
@@ -331,7 +325,7 @@ export function generateSeedData() {
         id: rxId,
         appointmentId: appt.id,
         patientId: 'pat-active',
-        patientName: 'Alexander Fleming',
+        patientName: 'Hari Krishnan',
         doctorId: docId,
         doctorName: doc.name,
         date: appt.date,
@@ -348,7 +342,7 @@ export function generateSeedData() {
       reports.push({
         id: repId,
         patientId: 'pat-active',
-        patientName: 'Alexander Fleming',
+        patientName: 'Hari Krishnan',
         date: appt.date,
         title: index === 0 ? 'Pulmonary Function Test (PFT)' : 'Complete Blood Count (CBC)',
         category: index === 0 ? 'Pulmonology' : 'Diagnostic Lab',
@@ -359,8 +353,8 @@ export function generateSeedData() {
     appointments.push(appt);
   });
 
-  // Seed 40 random appointments for other patients to populate doctor schedules and revenue charts
-  for (let i = 0; i < 40; i++) {
+  // Seed 20 random appointments for other patients
+  for (let i = 0; i < 20; i++) {
     const patient = getRandomItem(patients.filter(p => p.id !== 'pat-active'));
     const docId = getRandomItem(activeDocIds);
     const doc = getDoc(docId);
@@ -413,9 +407,9 @@ export function generateSeedData() {
 
   // Create notifications pool
   const notifications: Notification[] = [
-    { id: 'not-1', userId: 'pat-active', role: 'patient', title: 'Consultation Complete', message: 'Dr. Anjali Menon generated your prescription for the consultation on 2026-06-22.', time: '1 week ago', read: false },
-    { id: 'not-2', userId: 'pat-active', role: 'patient', title: 'Upcoming Call Reminder', message: 'Your video call with Dr. Siddharth Nair is scheduled tomorrow at 10:00 AM.', time: '1 hour ago', read: false },
-    { id: 'not-3', userId: 'doc-1', role: 'doctor', title: 'New Appointment Booked', message: 'Alexander Fleming booked an appointment for 2026-07-02.', time: '2 hours ago', read: false }
+    { id: 'not-1', userId: 'pat-active', role: 'patient', title: 'Consultation Complete', message: 'Dr. Anjali Nair generated your prescription for the consultation on 2026-06-22.', time: '1 week ago', read: false },
+    { id: 'not-2', userId: 'pat-active', role: 'patient', title: 'Upcoming Call Reminder', message: 'Your video call with Dr. Siddharth Kurian is scheduled tomorrow at 10:00 AM.', time: '1 hour ago', read: false },
+    { id: 'not-3', userId: 'doc-1', role: 'doctor', title: 'New Appointment Booked', message: 'Hari Krishnan booked an appointment for 2026-07-02.', time: '2 hours ago', read: false }
   ];
 
   return {

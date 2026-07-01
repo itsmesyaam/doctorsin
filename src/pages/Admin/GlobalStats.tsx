@@ -18,17 +18,17 @@ export const GlobalStats: React.FC = () => {
     .reduce((sum, a) => sum + a.fee, 0);
 
   const stats = [
-    { name: 'Global Platform Revenue', value: `$${(totalRevenue + 45000).toLocaleString()}`, desc: 'Aggregated consult fees', icon: DollarSign, color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/20' },
+    { name: 'Global Platform Revenue', value: `₹${(totalRevenue + 450000).toLocaleString()}`, desc: 'Aggregated consult fees', icon: DollarSign, color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/20' },
     { name: 'Total Patients Directory', value: `${patients.length} Users`, desc: 'Registered patient accounts', icon: Users, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20' },
     { name: 'Affiliated Hospitals', value: `${activeHospitals.length} / ${hospitals.length}`, desc: 'Licensed medical complexes', icon: Building2, color: 'text-purple-500 bg-purple-50 dark:bg-purple-950/20' },
     { name: 'Verified Physicians', value: `${activeDoctors.length} / ${doctors.length}`, desc: 'Duty roster active', icon: ShieldCheck, color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/20' }
   ];
 
   const auditEvents = [
-    { time: '12:58 PM', text: 'Invoice INV-48201 settled successfully ($800)' },
-    { time: '12:54 PM', text: 'Dr. Haridas Nair signed prescription file Rx-a4' },
+    { time: '12:58 PM', text: 'Invoice INV-48201 settled successfully (₹800)' },
+    { time: '12:54 PM', text: 'Dr. Haridas Menon signed prescription file Rx-a4' },
     { time: '12:49 PM', text: 'ICU Bed I-005 flagged for disinfection protocol' },
-    { time: '12:42 PM', text: 'General Physician application verified: Dr. Vikram Sen' }
+    { time: '12:42 PM', text: 'General Medicine application verified: Dr. Rohan Varghese' }
   ];
 
   return (
