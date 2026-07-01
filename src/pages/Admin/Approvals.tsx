@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDemo } from '../../context/DemoContext';
 import { ShieldCheck, Award, Stethoscope, Building2, MapPin, Check, X, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { MedicalAvatar } from '../../components/MedicalAvatar';
 
 export const Approvals: React.FC = () => {
   const { doctors, hospitals, verifyDoctor, approveHospital } = useDemo();
@@ -61,11 +62,7 @@ export const Approvals: React.FC = () => {
                     className="bg-white dark:bg-slate-900 border border-slate-205 dark:border-slate-800 rounded-2xl p-5 shadow-sm flex flex-col justify-between h-48"
                   >
                     <div className="flex gap-4 text-left">
-                      <img 
-                        src={doc.imageUrl} 
-                        alt={doc.name} 
-                        className="h-14 w-14 rounded-xl object-cover border border-slate-100 dark:border-slate-800 shrink-0"
-                      />
+                      <MedicalAvatar name={doc.name} type="doctor" specialty={doc.specialty} size={14} />
                       <div>
                         <span className="text-[9px] font-bold text-amber-600 bg-amber-50 dark:bg-amber-950/40 border border-amber-150 dark:border-amber-900/50 px-2 py-0.5 rounded-full uppercase">
                           Pending Verification

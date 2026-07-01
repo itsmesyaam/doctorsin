@@ -7,6 +7,7 @@ import {
   Calendar, FileText, ChevronRight, AlertCircle, Sparkles, Check, Clock
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { MedicalAvatar } from '../../components/MedicalAvatar';
 
 export const PatientDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -57,11 +58,7 @@ export const PatientDashboard: React.FC = () => {
           <h2 className="text-xl font-black text-slate-808 dark:text-white mt-0.5">Hello, {activePatient.name}</h2>
           <span className="text-xs text-slate-500 mt-1 block">Your vitals are stable.</span>
         </div>
-        <img 
-          src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150" 
-          alt="Avatar" 
-          className="h-10 w-10 rounded-2xl object-cover border border-slate-100 dark:border-slate-800"
-        />
+        <MedicalAvatar name={activePatient.name} type="patient" size={10} />
       </div>
 
       {/* Floating emergency SOS trigger */}

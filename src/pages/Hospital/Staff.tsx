@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDemo } from '../../context/DemoContext';
 import { Users, ShieldCheck, Mail, Phone, Calendar, Star, Award } from 'lucide-react';
+import { MedicalAvatar } from '../../components/MedicalAvatar';
 
 export const Staff: React.FC = () => {
   const { doctors, activeHospital } = useDemo();
@@ -34,12 +35,8 @@ export const Staff: React.FC = () => {
             className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-sm flex flex-col justify-between gap-4 text-left"
           >
             <div className="flex gap-4">
-              <img 
-                src={doc.imageUrl} 
-                alt={doc.name} 
-                className="h-14 w-14 rounded-2xl object-cover border border-slate-100 dark:border-slate-800 shrink-0"
-              />
-              <div className="space-y-0.5">
+              <MedicalAvatar name={doc.name} type="doctor" specialty={doc.specialty} size={14} />
+              <div className="space-y-0.5 text-left">
                 <span className="text-[9px] font-bold text-blue-650 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-full uppercase tracking-wider">
                   {doc.specialty}
                 </span>

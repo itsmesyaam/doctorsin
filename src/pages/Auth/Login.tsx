@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDemo, UserRole } from '../../context/DemoContext';
 import { motion } from 'framer-motion';
 import { ShieldAlert, User, Stethoscope, Building2, Key, Mail, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { DoctorsInLogo } from '../../components/DoctorsInLogo';
 
 export const Login: React.FC = () => {
   const { changeRole } = useDemo();
@@ -56,14 +57,8 @@ export const Login: React.FC = () => {
         <div className="absolute top-0 right-0 h-64 w-64 bg-blue-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 h-80 w-80 bg-emerald-500/10 rounded-full blur-3xl" />
 
-        <div className="flex items-center gap-2">
-          <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
-            <span className="font-extrabold text-xl">D+</span>
-          </div>
-          <div>
-            <span className="font-bold text-white text-lg tracking-tight">DOCTORS</span>
-            <span className="font-extrabold text-blue-500 text-lg tracking-tight">IN</span>
-          </div>
+        <div className="flex items-center">
+          <DoctorsInLogo variant="horizontal" size="sm" theme="dark" />
         </div>
 
         <div className="space-y-6 animate-float">

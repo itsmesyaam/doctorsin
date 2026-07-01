@@ -3,6 +3,8 @@ import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Bell, LogOut, ChevronRight, Sun, Moon, MoreHorizontal } from 'lucide-react';
 import { useDemo } from '../context/DemoContext';
+import { MedicalAvatar } from '../components/MedicalAvatar';
+import { DoctorsInLogo } from '../components/DoctorsInLogo';
 
 interface MenuItem {
   name: string;
@@ -51,26 +53,16 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <aside className="hidden lg:flex flex-col w-72 bg-slate-900 dark:bg-slate-950 text-slate-300 border-r border-slate-805 dark:border-slate-900 shrink-0">
         {/* Brand Logo */}
         <div className="h-20 flex items-center px-8 border-b border-slate-855 dark:border-slate-900">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
-              <span className="font-extrabold text-xl tracking-wider">D+</span>
-            </div>
-            <div>
-              <span className="font-bold text-white text-lg tracking-tight">DOCTORS</span>
-              <span className="font-extrabold text-blue-505 text-lg tracking-tight">IN</span>
-            </div>
+          <Link to="/" className="flex items-center group">
+            <DoctorsInLogo variant="horizontal" size="sm" theme="dark" />
           </Link>
         </div>
 
         {/* Profile Card */}
         <div className="p-6 border-b border-slate-805 dark:border-slate-900">
-          <div className="flex items-center gap-4">
-            <img 
-              src={userAvatar} 
-              alt={userName} 
-              className="h-12 w-12 rounded-xl object-cover border border-slate-700 shadow-md"
-            />
-            <div className="truncate text-left">
+          <div className="flex items-center gap-4 text-left">
+            <MedicalAvatar name={userName} type={role === 'doctor' ? 'doctor' : role === 'hospital' ? 'hospital' : 'patient'} size={12} />
+            <div className="truncate">
               <h4 className="text-sm font-semibold text-white truncate">{userName}</h4>
               <span className="text-[11px] font-medium text-slate-400 capitalize tracking-wider">{userRoleTitle}</span>
             </div>
@@ -126,11 +118,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <header className="h-16 lg:h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between px-4 lg:px-8 z-30 shrink-0 sticky top-0 transition-colors duration-300">
           <div className="flex items-center gap-3">
             {/* Logo on mobile header */}
-            <Link to="/" className="flex lg:hidden items-center gap-1.5">
-              <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-extrabold text-sm shadow shadow-blue-500/15">
-                D+
-              </div>
-              <span className="font-extrabold text-slate-800 dark:text-white text-sm tracking-tight">DOCTORSIN</span>
+            <Link to="/" className="flex lg:hidden items-center">
+              <DoctorsInLogo variant="horizontal" size="sm" theme="dark" />
             </Link>
 
             <div className="hidden lg:block text-left">
@@ -209,13 +198,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             </div>
 
             {/* Profile Info - Desktop Only */}
-            <div className="hidden sm:flex items-center gap-2.5 border-l border-slate-205 dark:border-slate-800 pl-3">
-              <img 
-                src={userAvatar} 
-                alt={userName} 
-                className="h-8 w-8 rounded-lg object-cover shadow-sm ring-1 ring-slate-100 dark:ring-slate-800"
-              />
-              <div className="hidden lg:block text-left">
+            <div className="hidden sm:flex items-center gap-2.5 border-l border-slate-205 dark:border-slate-800 pl-3 text-left">
+              <MedicalAvatar name={userName} type={role === 'doctor' ? 'doctor' : role === 'hospital' ? 'hospital' : 'patient'} size={8} />
+              <div className="hidden lg:block">
                 <p className="text-xs font-bold text-slate-808 dark:text-white leading-tight">{userName}</p>
                 <p className="text-[9px] font-bold text-blue-600 dark:text-blue-400 tracking-wider capitalize">{role} Account</p>
               </div>
@@ -296,11 +281,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               
               {/* Profile card summary */}
               <div className="flex items-center gap-4 pb-5 mb-5 border-b border-slate-100 dark:border-slate-800 shrink-0 text-left">
-                <img 
-                  src={userAvatar} 
-                  alt={userName} 
-                  className="h-14 w-14 rounded-2xl object-cover border border-slate-100 dark:border-slate-800 shadow"
-                />
+                <MedicalAvatar name={userName} type={role === 'doctor' ? 'doctor' : role === 'hospital' ? 'hospital' : 'patient'} size={14} />
                 <div>
                   <h4 className="font-extrabold text-slate-808 dark:text-white text-base leading-tight">{userName}</h4>
                   <span className="text-xs text-slate-400 capitalize">{userRoleTitle} Profile</span>

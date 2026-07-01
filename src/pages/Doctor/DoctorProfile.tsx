@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDemo } from '../../context/DemoContext';
 import { User, Award, Stethoscope, Building2, DollarSign, Clock, CheckCircle } from 'lucide-react';
+import { MedicalAvatar } from '../../components/MedicalAvatar';
 
 export const DoctorProfile: React.FC = () => {
   const { activeDoctor } = useDemo();
@@ -23,11 +24,9 @@ export const DoctorProfile: React.FC = () => {
       <div className="grid md:grid-cols-3 gap-8 items-start">
         {/* Left Side: Summary Card */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 text-center space-y-4 shadow-sm">
-          <img 
-            src={activeDoctor.imageUrl} 
-            alt={activeDoctor.name} 
-            className="h-24 w-24 rounded-3xl object-cover mx-auto shadow-md border border-slate-100 dark:border-slate-800"
-          />
+          <div className="flex justify-center">
+            <MedicalAvatar name={activeDoctor.name} type="doctor" specialty={activeDoctor.specialty} size={24} />
+          </div>
           <div>
             <h4 className="font-bold text-slate-800 dark:text-white text-base">{activeDoctor.name}</h4>
             <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-full inline-block mt-1">

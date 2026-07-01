@@ -21,7 +21,7 @@ export const PatientLayout: React.FC = () => {
       menuItems={menuItems}
       userName={activePatient.name}
       userRoleTitle="Patient Account"
-      userAvatar="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150"
+      userAvatar="avatar"
     >
       <Outlet />
     </DashboardLayout>

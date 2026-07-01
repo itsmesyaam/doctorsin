@@ -6,6 +6,7 @@ import {
   MapPin, CheckCircle, ChevronRight, X, Loader2, CreditCard
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { MedicalAvatar } from '../../components/MedicalAvatar';
 
 export const FindDoctor: React.FC = () => {
   const { doctors, bookAppointment } = useDemo();
@@ -210,13 +211,9 @@ export const FindDoctor: React.FC = () => {
                   className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
                 >
                   <div>
-                    <div className="flex gap-4">
-                      <img 
-                        src={doc.imageUrl} 
-                        alt={doc.name} 
-                        className="h-16 w-16 rounded-2xl object-cover border border-slate-100 dark:border-slate-800"
-                      />
-                      <div className="text-left">
+                    <div className="flex gap-4 text-left">
+                      <MedicalAvatar name={doc.name} type="doctor" specialty={doc.specialty} size={16} />
+                      <div>
                         <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-full uppercase tracking-wider">
                           {doc.specialty}
                         </span>
@@ -283,13 +280,9 @@ export const FindDoctor: React.FC = () => {
               className="relative w-full max-w-lg bg-white dark:bg-slate-900 border-t sm:border border-slate-205 dark:border-slate-800 rounded-t-[2rem] sm:rounded-3xl shadow-2xl overflow-hidden z-10 max-h-[85vh] sm:max-h-[90vh] flex flex-col"
             >
               {/* Header */}
-              <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950 shrink-0">
+              <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-55 dark:bg-slate-955 shrink-0">
                 <div className="flex items-center gap-3 text-left">
-                  <img 
-                    src={bookingDoc.imageUrl} 
-                    alt={bookingDoc.name} 
-                    className="h-10 w-10 rounded-xl object-cover"
-                  />
+                  <MedicalAvatar name={bookingDoc.name} type="doctor" specialty={bookingDoc.specialty} size={10} />
                   <div>
                     <h4 className="font-bold text-slate-800 dark:text-white text-sm leading-tight">{bookingDoc.name}</h4>
                     <span className="text-[10px] font-semibold text-blue-605 dark:text-blue-400 uppercase tracking-wider">{bookingDoc.specialty}</span>

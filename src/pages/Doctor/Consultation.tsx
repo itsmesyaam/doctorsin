@@ -6,6 +6,7 @@ import {
   AlertCircle, FileText, Plus, Trash2, CheckCircle2, Clock 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { MedicalAvatar } from '../../components/MedicalAvatar';
 
 interface FormMedicine {
   name: string;
@@ -136,13 +137,10 @@ export const Consultation: React.FC = () => {
         <div className="absolute inset-0 flex items-center justify-center">
           {isCallActive ? (
             isVideoOn ? (
-              <div className="relative w-full h-full">
-                <img 
-                  src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=1200" 
-                  alt="Patient Video" 
-                  className="w-full h-full object-cover opacity-80"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-slate-950/40" />
+              <div className="relative w-full h-full bg-slate-800 flex flex-col items-center justify-center gap-3">
+                <MedicalAvatar name={appt.patientName} type="patient" size={20} />
+                <span className="text-xs text-slate-400 font-semibold animate-pulse">Connecting...</span>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-slate-950/40 pointer-events-none" />
               </div>
             ) : (
               <div className="flex flex-col items-center gap-3 text-slate-500">
@@ -175,12 +173,8 @@ export const Consultation: React.FC = () => {
 
           {/* Doctor preview */}
           {isCallActive && (
-            <div className="absolute bottom-20 right-4 h-28 sm:h-36 aspect-video bg-slate-800 rounded-2xl overflow-hidden border border-slate-700 shadow-xl z-20">
-              <img 
-                src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=150" 
-                alt="Doctor Thumbnail" 
-                className="w-full h-full object-cover"
-              />
+            <div className="absolute bottom-20 right-4 h-28 sm:h-36 aspect-video bg-slate-800 rounded-2xl overflow-hidden border border-slate-700 shadow-xl z-20 flex items-center justify-center">
+              <MedicalAvatar name="You" type="doctor" size={12} />
             </div>
           )}
         </div>

@@ -6,6 +6,8 @@ import {
   ArrowRight, Video, Calendar, ShoppingBag, ChevronRight, CheckCircle2, ChevronDown 
 } from 'lucide-react';
 import { useDemo } from '../../context/DemoContext';
+import { MedicalAvatar } from '../../components/MedicalAvatar';
+import { DoctorsInLogo } from '../../components/DoctorsInLogo';
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -81,14 +83,8 @@ export const LandingPage: React.FC = () => {
       {/* Navigation Header */}
       <header className="sticky top-0 z-40 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-800/40">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-extrabold text-sm shadow shadow-blue-500/15">
-              D+
-            </div>
-            <div>
-              <span className="font-bold text-slate-900 dark:text-white text-sm tracking-tight">DOCTORS</span>
-              <span className="font-extrabold text-blue-600 text-sm tracking-tight">IN</span>
-            </div>
+          <Link to="/" className="flex items-center">
+            <DoctorsInLogo variant="horizontal" size="sm" theme="dark" />
           </Link>
           <button 
             onClick={() => navigate('/login')}
@@ -196,7 +192,7 @@ export const LandingPage: React.FC = () => {
                   {searchResults.map((doc) => (
                     <div key={doc.id} className="border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 hover:shadow-lg transition-all bg-slate-50 dark:bg-slate-850 flex flex-col justify-between">
                       <div className="flex gap-3">
-                        <img src={doc.imageUrl} alt={doc.name} className="h-14 w-14 rounded-xl object-cover border border-slate-200 dark:border-slate-800" />
+                        <MedicalAvatar name={doc.name} type="doctor" specialty={doc.specialty} size={14} />
                         <div className="text-left">
                           <span className="text-[9px] font-bold text-blue-650 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-full uppercase">
                             {doc.specialty}
@@ -252,7 +248,7 @@ export const LandingPage: React.FC = () => {
             >
               <div className="text-center space-y-3">
                 <div className="relative inline-block">
-                  <img src={doc.imageUrl} alt={doc.name} className="h-20 w-20 rounded-2xl object-cover mx-auto shadow border border-white dark:border-slate-800" />
+                  <MedicalAvatar name={doc.name} type="doctor" specialty={doc.specialty} size={20} />
                   <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white p-1 rounded-lg border-2 border-slate-50 dark:border-slate-900">
                     <Award size={10} />
                   </div>
@@ -370,12 +366,7 @@ export const LandingPage: React.FC = () => {
 
       {/* Footer */}
       <footer className="bg-slate-950 text-slate-500 py-8 px-4 text-left space-y-4">
-        <div className="flex items-center gap-2">
-          <div className="h-6 w-6 rounded bg-blue-605 flex items-center justify-center text-white text-xs font-bold">
-            D+
-          </div>
-          <span className="font-extrabold text-white text-sm">DOCTORSIN</span>
-        </div>
+        <DoctorsInLogo variant="horizontal" size="sm" theme="dark" />
         <p className="text-[10px]">
           © {new Date().getFullYear()} DOCTORSIN Platform. Built as a high-fidelity interactive SaaS prototype.
         </p>

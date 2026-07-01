@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDemo } from '../../context/DemoContext';
 import { Building2, MapPin, Star, ShieldCheck, CheckCircle } from 'lucide-react';
+import { MedicalAvatar } from '../../components/MedicalAvatar';
 
 export const Settings: React.FC = () => {
   const { activeHospital } = useDemo();
@@ -23,11 +24,9 @@ export const Settings: React.FC = () => {
       <div className="grid md:grid-cols-3 gap-8 items-start">
         {/* Left Info Card */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 text-center space-y-4 shadow-sm">
-          <img 
-            src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=300" 
-            alt={activeHospital.name} 
-            className="h-28 w-full rounded-2xl object-cover mx-auto shadow-md border border-slate-100 dark:border-slate-800"
-          />
+          <div className="h-28 w-full rounded-2xl flex items-center justify-center bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+            <MedicalAvatar name={activeHospital.name} type="hospital" size={20} />
+          </div>
           <div>
             <h4 className="font-bold text-slate-800 dark:text-white text-sm leading-tight">{activeHospital.name}</h4>
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mt-1">Kochi Division</span>

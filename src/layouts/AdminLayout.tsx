@@ -16,7 +16,7 @@ export const AdminLayout: React.FC = () => {
       menuItems={menuItems}
       userName="Admin Console"
       userRoleTitle="Super Administrator"
-      userAvatar="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&q=80&w=150"
+      userAvatar="avatar"
     >
       <Outlet />
     </DashboardLayout>

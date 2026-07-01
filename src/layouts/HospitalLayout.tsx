@@ -20,7 +20,7 @@ export const HospitalLayout: React.FC = () => {
       menuItems={menuItems}
       userName={activeHospital.name}
       userRoleTitle="Hospital Administrator"
-      userAvatar="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=150"
+      userAvatar="avatar"
     >
       <Outlet />
     </DashboardLayout>

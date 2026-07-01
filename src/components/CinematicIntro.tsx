@@ -1,82 +1,104 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, ShieldAlert, Sparkles, Volume2, VolumeX } from 'lucide-react';
+import { Volume2, VolumeX } from 'lucide-react';
+import { DoctorsInLogo } from './DoctorsInLogo';
 
 interface CinematicIntroProps {
   onComplete: () => void;
 }
 
+/**
+ * DOCTORSIN Cinematic Brand Reveal
+ *
+ * A premium 5-scene healthcare-inspired cinematic intro sequence.
+ *
+ * Scene 1 (0–600ms):   Dark ambient — particles + glow orbs
+ * Scene 2 (600–1800ms): Heartbeat SVG line draws itself + procedural audio
+ * Scene 3 (1800–2800ms): Logo icon springs in, brand text slides in
+ * Scene 4 (2800–3400ms): Horizontal light beam sweep
+ * Scene 5 (3400–3900ms): Fade out, transition to app
+ *
+ * Plays once per browser session (localStorage gated).
+ * Procedural audio via Web Audio API (no copyrighted sounds).
+ */
 export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onComplete }) => {
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [step, setStep] = useState(0); // 0: initial rays, 1: heartbeat line, 2: logo assembly, 3: glow fade
+  const [step, setStep] = useState(0);
 
-  // Play procedural healthcare synth sound using Web Audio API
-  const playIntroSound = () => {
+  const handleComplete = useCallback(() => {
+    localStorage.setItem('doctorsin_intro_played', 'true');
+    onComplete();
+  }, [onComplete]);
+
+  // Procedural healthcare audio using Web Audio API
+  const playIntroSound = useCallback(() => {
     if (!soundEnabled) return;
     try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
 
-      // Lub-Dub Heartbeat Beep
-      const playHeartbeat = (time: number, freq: number) => {
+      // Helper: play a single heartbeat thump
+      const playBeat = (time: number, freq: number) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
+        osc.type = 'sine';
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.frequency.setValueAtTime(freq, time);
         gain.gain.setValueAtTime(0.01, time);
-        gain.gain.exponentialRampToValueAtTime(0.6, time + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.5, time + 0.05);
         gain.gain.exponentialRampToValueAtTime(0.01, time + 0.25);
         osc.start(time);
         osc.stop(time + 0.3);
       };
 
-      // Sound 1: First Heartbeat (Lub)
-      playHeartbeat(ctx.currentTime + 0.5, 75);
-      // Sound 2: Second Heartbeat (Dub)
-      playHeartbeat(ctx.currentTime + 0.7, 85);
+      // Lub-Dub heartbeat
+      const now = ctx.currentTime;
+      playBeat(now + 0.4, 72);
+      playBeat(now + 0.6, 88);
 
-      // Sound 3: Heavenly assembly glow sound (high chime)
-      const chimeOsc = ctx.createOscillator();
+      // Ascending digital chime (assembly sound)
+      const chime = ctx.createOscillator();
       const chimeGain = ctx.createGain();
-      chimeOsc.type = 'sine';
-      chimeOsc.connect(chimeGain);
+      chime.type = 'sine';
+      chime.connect(chimeGain);
       chimeGain.connect(ctx.destination);
-      chimeOsc.frequency.setValueAtTime(220, ctx.currentTime + 1.2);
-      chimeOsc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 2.5);
-      chimeGain.gain.setValueAtTime(0.01, ctx.currentTime + 1.2);
-      chimeGain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 1.8);
-      chimeGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 3.2);
-      chimeOsc.start(ctx.currentTime + 1.2);
-      chimeOsc.stop(ctx.currentTime + 3.5);
+      chime.frequency.setValueAtTime(220, now + 1.2);
+      chime.frequency.exponentialRampToValueAtTime(660, now + 2.5);
+      chimeGain.gain.setValueAtTime(0.01, now + 1.2);
+      chimeGain.gain.linearRampToValueAtTime(0.25, now + 1.8);
+      chimeGain.gain.exponentialRampToValueAtTime(0.01, now + 3.2);
+      chime.start(now + 1.2);
+      chime.stop(now + 3.5);
 
+      // Soft ambient pad
+      const pad = ctx.createOscillator();
+      const padGain = ctx.createGain();
+      pad.type = 'triangle';
+      pad.connect(padGain);
+      padGain.connect(ctx.destination);
+      pad.frequency.setValueAtTime(110, now + 0.2);
+      padGain.gain.setValueAtTime(0.01, now + 0.2);
+      padGain.gain.linearRampToValueAtTime(0.08, now + 1.0);
+      padGain.gain.linearRampToValueAtTime(0.01, now + 3.8);
+      pad.start(now + 0.2);
+      pad.stop(now + 4.0);
     } catch (e) {
-      console.warn('Audio context blocked by browser user gesture policy:', e);
+      console.warn('Audio context unavailable:', e);
     }
-  };
+  }, [soundEnabled]);
 
   useEffect(() => {
-    // Stage 1: Play sound & animate heartbeat line
+    // Scene progression
     const t1 = setTimeout(() => {
       setStep(1);
       playIntroSound();
     }, 600);
 
-    // Stage 2: Logo assembly
-    const t2 = setTimeout(() => {
-      setStep(2);
-    }, 1800);
-
-    // Stage 3: Glowing final assembly
-    const t3 = setTimeout(() => {
-      setStep(3);
-    }, 2800);
-
-    // Stage 4: Trigger exit callback
-    const t4 = setTimeout(() => {
-      handleComplete();
-    }, 3900);
+    const t2 = setTimeout(() => setStep(2), 1800);
+    const t3 = setTimeout(() => setStep(3), 2800);
+    const t4 = setTimeout(() => handleComplete(), 3900);
 
     return () => {
       clearTimeout(t1);
@@ -84,142 +106,162 @@ export const CinematicIntro: React.FC<CinematicIntroProps> = ({ onComplete }) =>
       clearTimeout(t3);
       clearTimeout(t4);
     };
-  }, [soundEnabled]);
+  }, [playIntroSound, handleComplete]);
 
-  const handleComplete = () => {
-    localStorage.setItem('doctorsin_intro_played', 'true');
-    onComplete();
-  };
+  // Particle data (memoized once)
+  const particles = React.useMemo(
+    () =>
+      Array.from({ length: 25 }, (_, i) => ({
+        id: i,
+        w: Math.random() * 3 + 1.5,
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        dur: Math.random() * 4 + 3,
+        delay: Math.random() * 3,
+      })),
+    []
+  );
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#030712] flex flex-col items-center justify-center select-none overflow-hidden font-sans">
-      
-      {/* Sound Toggle (Top Right Corner) */}
-      <div className="absolute top-6 right-6 z-50 flex items-center gap-2">
+    <div className="fixed inset-0 z-[9999] bg-[#030712] flex flex-col items-center justify-center select-none overflow-hidden">
+      {/* ── Controls (top-right) ── */}
+      <div className="absolute top-5 right-5 z-50 flex items-center gap-2">
         <button
-          onClick={() => setSoundEnabled(!soundEnabled)}
-          className="p-2.5 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all border border-white/10 cursor-pointer"
+          onClick={() => setSoundEnabled((s) => !s)}
+          className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-500 hover:text-white transition-all border border-white/10 cursor-pointer"
+          aria-label="Toggle sound"
         >
-          {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+          {soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
         </button>
         <button
           onClick={handleComplete}
-          className="text-[10px] font-bold tracking-widest text-slate-500 hover:text-white uppercase transition-colors px-3 py-1.5 rounded-lg border border-slate-800 hover:border-slate-650 cursor-pointer"
+          className="text-[10px] font-bold tracking-widest text-slate-600 hover:text-white uppercase transition-colors px-3 py-1.5 rounded-lg border border-slate-800 hover:border-slate-600 cursor-pointer"
         >
           Skip Intro
         </button>
       </div>
 
-      {/* Cinematic Ray Lighting Backdrops */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="h-[250px] w-[250px] rounded-full bg-blue-600/10 blur-[120px] animate-pulse" />
-        <div className="absolute h-[500px] w-[500px] rounded-full bg-emerald-600/5 blur-[160px]" />
+      {/* ── Scene 1: Ambient backdrop ── */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Primary blue glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[280px] w-[280px] rounded-full bg-blue-600/10 blur-[140px] animate-pulse" />
+        {/* Secondary teal glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-teal-600/5 blur-[180px]" />
       </div>
 
-      {/* Cinematic Particle Canvas */}
+      {/* ── Floating particles ── */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 15 }).map((_, i) => (
+        {particles.map((p) => (
           <motion.div
-            key={i}
-            className="absolute rounded-full bg-blue-500/20"
+            key={p.id}
+            className="absolute rounded-full bg-blue-400/20"
             style={{
-              width: Math.random() * 4 + 2,
-              height: Math.random() * 4 + 2,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              width: p.w,
+              height: p.w,
+              left: `${p.left}%`,
+              top: `${p.top}%`,
             }}
-            animate={{
-              y: [0, -100],
-              opacity: [0, 0.8, 0],
-            }}
+            animate={{ y: [0, -120], opacity: [0, 0.7, 0] }}
             transition={{
-              duration: Math.random() * 3 + 2,
+              duration: p.dur,
               repeat: Infinity,
               ease: 'easeInOut',
-              delay: Math.random() * 2,
+              delay: p.delay,
             }}
           />
         ))}
       </div>
 
+      {/* ── Main content area ── */}
       <div className="relative flex flex-col items-center justify-center space-y-6">
-        
-        {/* Heartbeat Line (Step 1) */}
+        {/* Scene 2: Heartbeat line */}
         <AnimatePresence>
           {step === 1 && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              exit={{ opacity: 0, transition: { duration: 0.3 } }}
               className="w-[280px] h-[60px] flex items-center justify-center"
             >
-              <svg viewBox="0 0 300 100" className="w-full h-full stroke-blue-500 fill-none stroke-[3]">
+              <svg
+                viewBox="0 0 300 100"
+                className="w-full h-full fill-none"
+              >
+                <defs>
+                  <linearGradient id="pulse-grad" x1="0" y1="0" x2="300" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="#2563EB" stopOpacity="0.4" />
+                    <stop offset="50%" stopColor="#2563EB" />
+                    <stop offset="100%" stopColor="#14B8A6" stopOpacity="0.4" />
+                  </linearGradient>
+                </defs>
                 <motion.path
                   d="M 0 50 L 80 50 L 100 20 L 120 80 L 140 30 L 150 50 L 300 50"
+                  stroke="url(#pulse-grad)"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
-                  transition={{ duration: 1.2, ease: 'easeInOut' }}
+                  transition={{ duration: 1.1, ease: 'easeInOut' }}
                 />
               </svg>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Logo gradual assembly & Glow assembly (Step 2 & 3) */}
+        {/* Scene 3: Logo assembly */}
         <AnimatePresence>
           {step >= 2 && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.85 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="flex flex-col items-center space-y-4"
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+              className="flex flex-col items-center space-y-5"
             >
               <div className="flex items-center gap-3">
-                {/* Logo assembly icon */}
+                {/* Icon springs in */}
                 <motion.div
                   initial={{ rotate: -90, scale: 0 }}
                   animate={{ rotate: 0, scale: 1 }}
-                  transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                  className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-emerald-500 p-2.5 flex items-center justify-center text-white shadow-xl shadow-blue-500/20"
+                  transition={{ delay: 0.15, type: 'spring', stiffness: 180, damping: 14 }}
                 >
-                  <Activity size={24} className="animate-pulse" />
+                  <DoctorsInLogo variant="icon" size="lg" theme="dark" />
                 </motion.div>
 
-                {/* Animated Brand text */}
+                {/* Brand text */}
                 <div className="flex flex-col text-left">
                   <motion.span
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 }}
-                    className="font-black text-2xl tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-400 uppercase"
+                    transition={{ delay: 0.35, duration: 0.5 }}
+                    className="font-black text-2xl tracking-[0.15em] text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-400 uppercase"
                   >
                     DOCTORSIN
                   </motion.span>
                   <motion.span
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: 0.6 }}
-                    className="text-[9px] font-bold tracking-[0.3em] text-blue-500 uppercase mt-0.5"
+                    transition={{ delay: 0.6, duration: 0.5 }}
+                    className="text-[9px] font-bold tracking-[0.3em] text-blue-400 uppercase mt-0.5"
                   >
-                    Kerala Healthcare Roster
+                    Healthcare. Connected.
                   </motion.span>
                 </div>
               </div>
 
-              {/* Assembly Light beams */}
-              {step === 3 && (
+              {/* Scene 4: Light beam sweep */}
+              {step >= 3 && (
                 <motion.div
                   initial={{ opacity: 0, scaleX: 0 }}
                   animate={{ opacity: [0, 1, 0], scaleX: [0, 1.2, 0] }}
-                  transition={{ duration: 1 }}
-                  className="w-[200px] h-[1px] bg-gradient-to-r from-transparent via-blue-500 to-transparent"
+                  transition={{ duration: 0.9, ease: 'easeInOut' }}
+                  className="w-[220px] h-[1px] bg-gradient-to-r from-transparent via-blue-500 to-transparent"
                 />
               )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-
     </div>
   );
 };

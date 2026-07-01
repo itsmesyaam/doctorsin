@@ -20,7 +20,7 @@ export const DoctorLayout: React.FC = () => {
       menuItems={menuItems}
       userName={activeDoctor.name}
       userRoleTitle={activeDoctor.specialty}
-      userAvatar={activeDoctor.imageUrl}
+      userAvatar="avatar"
     >
       <Outlet />
     </DashboardLayout>

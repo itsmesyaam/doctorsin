@@ -15,7 +15,7 @@ export const HospitalOverview: React.FC = () => {
   const stats = [
     { name: 'Total Doctors Staff', value: `${activeHospital.doctorsCount} Specialists`, desc: 'Active duty shifts', icon: Users, color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/20' },
     { name: 'Bed Occupancy', value: `${occupancyRate}%`, desc: `${activeHospital.bedsOccupied} / ${activeHospital.bedsTotal} occupied`, icon: BedDouble, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20' },
-    { name: 'Monthly Revenue', value: `$${activeHospital.revenue[5].toLocaleString()}`, desc: 'Gross earnings this month', icon: Wallet, color: 'text-purple-500 bg-purple-50 dark:bg-purple-950/20' },
+    { name: 'Monthly Revenue', value: `₹${activeHospital.revenue[5].toLocaleString()}`, desc: 'Gross earnings this month', icon: Wallet, color: 'text-purple-500 bg-purple-50 dark:bg-purple-950/20' },
     { name: 'Affiliation Rating', value: `${activeHospital.rating} ★`, desc: 'Patient feedback index', icon: Award, color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/20' }
   ];
 
@@ -156,7 +156,7 @@ export const HospitalOverview: React.FC = () => {
                     textAnchor="middle" 
                     className="text-[9px] font-extrabold fill-slate-800 dark:fill-slate-200"
                   >
-                    ${(p.val / 1000).toFixed(0)}k
+                    ₹{(p.val / 1000).toFixed(0)}k
                   </text>
                 </g>
               ))}

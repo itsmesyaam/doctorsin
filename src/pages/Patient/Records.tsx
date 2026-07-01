@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
+import { DoctorsInLogo } from '../../components/DoctorsInLogo';
 
 export const Records: React.FC = () => {
   const { prescriptions, reports, activePatient } = useDemo();
@@ -199,9 +200,7 @@ export const Records: React.FC = () => {
                     <p className="text-[10px] text-slate-400">Apollo Premium Clinic • Edappally, Kochi</p>
                   </div>
                   <div className="text-right space-y-1">
-                    <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center text-white ml-auto">
-                      <span className="font-black text-lg">D+</span>
-                    </div>
+                    <DoctorsInLogo variant="icon" size="sm" theme="dark" className="ml-auto" />
                     <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider mt-1">DOCTORSIN platform</span>
                   </div>
                 </div>
