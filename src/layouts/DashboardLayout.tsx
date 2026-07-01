@@ -229,34 +229,36 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         </main>
       </div>
 
-      {/* Mobile Sticky Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 inset-x-0 h-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800/80 flex lg:hidden items-center justify-around z-40 px-2 pb-safe select-none shadow-lg">
+      {/* Mobile Floating Bottom Navigation Bar */}
+      <nav className="fixed bottom-4 inset-x-4 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-slate-200/50 dark:border-slate-800/50 rounded-2xl flex lg:hidden items-center justify-around z-40 px-2 select-none shadow-xl shadow-slate-250/20 dark:shadow-none">
         {bottomNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
           
           return (
-            <NavLink
-              key={item.name}
-              to={item.path}
-              className={`flex flex-col items-center justify-center flex-1 h-full py-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors relative ${
-                isActive ? 'text-blue-600 dark:text-blue-400 font-extrabold' : ''
-              }`}
-            >
-              <Icon size={20} className={isActive ? 'text-blue-600 dark:text-blue-400 scale-105 transition-transform' : ''} />
-              <span className="text-[9px] font-bold tracking-tight mt-1">{item.name}</span>
-              {isActive && (
-                <motion.div
-                  layoutId="mobile-nav-dot"
-                  className="absolute bottom-1.5 h-1 w-1 bg-blue-600 dark:bg-blue-400 rounded-full"
-                />
-              )}
-            </NavLink>
+            <motion.div key={item.name} whileTap={{ scale: 0.9 }} className="flex-1 h-full">
+              <NavLink
+                to={item.path}
+                className={`flex flex-col items-center justify-center h-full py-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors relative ${
+                  isActive ? 'text-blue-600 dark:text-blue-400 font-extrabold' : ''
+                }`}
+              >
+                <Icon size={20} className={isActive ? 'text-blue-600 dark:text-blue-400 scale-105 transition-transform' : ''} />
+                <span className="text-[9px] font-bold tracking-tight mt-1">{item.name}</span>
+                {isActive && (
+                  <motion.div
+                    layoutId="mobile-nav-dot"
+                    className="absolute bottom-1.5 h-1 w-1 bg-blue-600 dark:bg-blue-400 rounded-full"
+                  />
+                )}
+              </NavLink>
+            </motion.div>
           );
         })}
         
         {/* More Tab */}
-        <button
+        <motion.button
+          whileTap={{ scale: 0.9 }}
           onClick={() => setIsMoreSheetOpen(true)}
           className={`flex flex-col items-center justify-center flex-1 h-full py-1 text-slate-400 dark:text-slate-500 cursor-pointer ${
             isMoreSheetOpen ? 'text-blue-600 dark:text-blue-400' : ''
@@ -264,7 +266,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         >
           <MoreHorizontal size={20} />
           <span className="text-[9px] font-bold tracking-tight mt-1">More</span>
-        </button>
+        </motion.button>
       </nav>
 
       {/* Mobile "More" Slide-up Bottom Sheet Drawer */}
