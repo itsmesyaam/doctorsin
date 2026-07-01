@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useDemo } from '../../context/DemoContext';
 import { 
   FileText, Calendar, User, FileSpreadsheet, Eye, 
-  Printer, ArrowDownToLine, Star, Sparkles, X, Heart, Activity 
+  Printer, ArrowDownToLine, Star, Sparkles, X, Heart, Activity,
+  ShoppingCart, CreditCard, Shield, CheckCircle2, Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
 
 export const Records: React.FC = () => {
   const { prescriptions, reports, activePatient } = useDemo();
@@ -13,6 +15,13 @@ export const Records: React.FC = () => {
   // Modal viewer state
   const [viewingRx, setViewingRx] = useState<any | null>(null);
   const [viewingReport, setViewingReport] = useState<any | null>(null);
+
+  // Pharmacy checkout states
+  const [orderingRx, setOrderingRx] = useState<any | null>(null);
+  const [orderStep, setOrderStep] = useState<'checkout' | 'success'>('checkout');
+  const [isOrderingSubmitting, setIsOrderingSubmitting] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card'>('upi');
+  const [upiId, setUpiId] = useState('');
 
   const userRxs = prescriptions.filter(p => p.patientId === activePatient.id);
   const userReports = reports.filter(r => r.patientId === activePatient.id);
@@ -270,8 +279,15 @@ export const Records: React.FC = () => {
                 </div>
               </div>
 
-              {/* Print buttons */}
+              {/* Print and Checkout buttons */}
               <div className="mt-8 pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3 print:hidden">
+                <button
+                  onClick={() => { setViewingRx(null); setOrderingRx(viewingRx); setOrderStep('checkout'); }}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-3 rounded-2xl flex items-center gap-1.5 shadow-md shadow-emerald-500/10 cursor-pointer"
+                >
+                  <ShoppingCart size={14} />
+                  <span>Order Medicines</span>
+                </button>
                 <button
                   onClick={() => setViewingRx(null)}
                   className="px-5 py-3 border border-slate-250 dark:border-slate-800 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-xs text-slate-655 dark:text-slate-305"
@@ -283,7 +299,7 @@ export const Records: React.FC = () => {
                   className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-3 rounded-2xl flex items-center gap-1.5 shadow-md shadow-blue-500/10 cursor-pointer"
                 >
                   <Printer size={14} />
-                  <span>Print Prescription</span>
+                  <span>Print</span>
                 </button>
               </div>
             </motion.div>
@@ -378,6 +394,198 @@ export const Records: React.FC = () => {
                   <span>Print Report</span>
                 </button>
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Pharmacy Checkout Modal */}
+      <AnimatePresence>
+        {orderingRx && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 p-0">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.6 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setOrderingRx(null)}
+              className="absolute inset-0 bg-slate-900"
+            />
+            
+            <motion.div
+              initial={{ opacity: 0, y: window.innerWidth < 640 ? '100%' : 20, scale: window.innerWidth < 640 ? 1 : 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: window.innerWidth < 640 ? '100%' : 20, scale: window.innerWidth < 640 ? 1 : 0.95 }}
+              className="relative w-full max-w-md bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 rounded-t-[2rem] sm:rounded-3xl shadow-2xl p-6 z-10 max-h-[85vh] sm:max-h-[90vh] flex flex-col overflow-y-auto"
+            >
+              <button 
+                onClick={() => setOrderingRx(null)}
+                className="absolute top-5 right-5 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-400"
+              >
+                <X size={16} />
+              </button>
+
+              {orderStep === 'checkout' ? (
+                <div className="text-left space-y-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 rounded-xl">
+                      <ShoppingCart size={18} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-800 dark:text-white text-sm">Pharmacy Fulfillment</h4>
+                      <span className="text-[9px] text-slate-400 uppercase tracking-wider font-bold">
+                        Aster Pharmacy Edappally
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Medicines list */}
+                  <div className="space-y-2 border-y border-slate-150 dark:border-slate-850 py-3 text-xs">
+                    {orderingRx.medicines.map((med: any, index: number) => (
+                      <div key={index} className="flex justify-between items-center">
+                        <div>
+                          <span className="font-bold text-slate-808 dark:text-slate-250">{med.name}</span>
+                          <span className="text-[10px] text-slate-400 block mt-0.5">{med.instructions}</span>
+                        </div>
+                        <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-bold text-slate-600 dark:text-slate-300 text-[9px] whitespace-nowrap">
+                          Qty: 1 box
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Invoice Summary */}
+                  <div className="bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 p-4 rounded-2xl space-y-2.5 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Medicines total</span>
+                      <span className="font-semibold text-slate-700 dark:text-slate-305">₹380</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Fast home delivery</span>
+                      <span className="font-semibold text-emerald-600">FREE</span>
+                    </div>
+                    <div className="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-2 font-bold text-slate-805 dark:text-white">
+                      <span>Total to Pay</span>
+                      <span>₹380</span>
+                    </div>
+                  </div>
+
+                  {/* Address Summary */}
+                  <div className="space-y-1.5 text-xs text-slate-655 dark:text-slate-350">
+                    <span className="text-[9px] text-slate-400 font-bold block uppercase">Delivery Location</span>
+                    <p className="font-bold text-slate-808 dark:text-white">Hari Krishnan • Edappally, Kochi, Kerala</p>
+                    <p className="text-[10px]">ETA: Within 2 Hours (Express delivery dispatch)</p>
+                  </div>
+
+                  {/* Razorpay UPI check */}
+                  <div className="space-y-3 pt-2">
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('upi')}
+                        className={`p-3 rounded-xl border text-center text-xs font-bold transition-all ${
+                          paymentMethod === 'upi'
+                            ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 text-blue-650'
+                            : 'border-slate-200 dark:border-slate-800 text-slate-550 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850'
+                        }`}
+                      >
+                        UPI (GPay, PhonePe)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('card')}
+                        className={`p-3 rounded-xl border text-center text-xs font-bold transition-all ${
+                          paymentMethod === 'card'
+                            ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 text-blue-650'
+                            : 'border-slate-200 dark:border-slate-800 text-slate-550 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850'
+                        }`}
+                      >
+                        Razorpay Checkout Card
+                      </button>
+                    </div>
+
+                    {paymentMethod === 'upi' ? (
+                      <input 
+                        type="text" 
+                        required
+                        placeholder="Enter UPI ID (e.g. name@okaxis)" 
+                        value={upiId}
+                        onChange={(e) => setUpiId(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs outline-none focus:border-blue-500 font-mono dark:text-white"
+                      />
+                    ) : (
+                      <div className="grid grid-cols-3 gap-2">
+                        <input 
+                          type="text" 
+                          placeholder="Card Number" 
+                          defaultValue="4242 4242 4242 4242"
+                          className="col-span-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs outline-none focus:border-blue-500 font-mono dark:text-white"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setIsOrderingSubmitting(true);
+                      setTimeout(() => {
+                        setIsOrderingSubmitting(false);
+                        setOrderStep('success');
+                        confetti({
+                          particleCount: 100,
+                          spread: 60,
+                          origin: { y: 0.85 }
+                        });
+                      }, 1000);
+                    }}
+                    disabled={isOrderingSubmitting}
+                    className="w-full bg-emerald-650 hover:bg-emerald-700 text-white font-bold text-xs py-3.5 rounded-2xl flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/10 cursor-pointer"
+                  >
+                    {isOrderingSubmitting ? (
+                      <>
+                        <Loader2 size={14} className="animate-spin" />
+                        <span>Securing Razorpay link...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard size={14} />
+                        <span>Place Order (₹380)</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <div className="text-center py-6 space-y-4">
+                  <div className="h-12 w-12 bg-emerald-50 dark:bg-emerald-950/40 rounded-full flex items-center justify-center mx-auto text-emerald-600 border border-emerald-100 dark:border-emerald-900/50 shadow-inner">
+                    <CheckCircle2 size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-slate-850 dark:text-white text-base">Order Placed Successfully!</h4>
+                    <p className="text-xs text-slate-400 mt-1">Dispatched from Aster Pharmacy bypass store.</p>
+                  </div>
+
+                  <div className="bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-850 rounded-2xl p-4 text-xs text-left space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Delivery Partner</span>
+                      <span className="font-bold text-slate-800 dark:text-white">Rajesh Kumar</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Order ID</span>
+                      <span className="font-mono text-slate-700 dark:text-slate-300">ORD-{Date.now().toString().slice(-5)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">ETA</span>
+                      <span className="font-bold text-emerald-600">45 Minutes</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setOrderingRx(null)}
+                    className="w-full py-3 bg-slate-100 dark:bg-slate-800 text-slate-605 dark:text-slate-300 font-bold rounded-xl text-xs cursor-pointer"
+                  >
+                    Done
+                  </button>
+                </div>
+              )}
             </motion.div>
           </div>
         )}
