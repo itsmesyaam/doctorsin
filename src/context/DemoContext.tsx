@@ -79,7 +79,7 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [theme]);
 
-  // Fake background live updates timer
+  // Fake background live updates timer (Simulating live application behavior)
   useEffect(() => {
     const interval = setInterval(() => {
       const randType = Math.floor(Math.random() * 4);
@@ -90,8 +90,8 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: `not-bg-${Date.now()}`,
           userId: 'pat-active',
           role: 'patient',
-          title: 'Lab Report Released',
-          message: 'Your laboratory respiratory function test report has been signed.',
+          title: 'Aster Medcity Lab Report',
+          message: 'Your laboratory lipid profile test report has been signed by Dr. Haridas Menon.',
           time: 'Just now',
           read: false
         };
@@ -100,8 +100,8 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: `not-bg-${Date.now()}`,
           userId: 'doc-1',
           role: 'doctor',
-          title: 'Queue Update',
-          message: 'Patient Sarah Connor is checked in at active reception.',
+          title: 'Queue Check-In',
+          message: 'Patient Rahul Varghese has checked in via active QR check-in.',
           time: 'Just now',
           read: false
         };
@@ -110,8 +110,8 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: `not-bg-${Date.now()}`,
           userId: 'hosp-1',
           role: 'hospital',
-          title: 'Emergency Checked In',
-          message: 'Ambulance AMB-402 has arrived with a critical patient.',
+          title: 'Emergency Red Alert',
+          message: 'Ambulance AMB-402 dispatched from Kakkanad bypass with a critical patient.',
           time: 'Just now',
           read: false
         };
@@ -120,8 +120,8 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: `not-bg-${Date.now()}`,
           userId: 'admin-1',
           role: 'admin',
-          title: 'Licensing Registration',
-          message: 'A new doctor application is queued for verification.',
+          title: 'Razorpay Split Credited',
+          message: 'Commission margin slice of ₹120 settled for transaction TXN-90234.',
           time: 'Just now',
           read: false
         };
@@ -131,17 +131,23 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setNotifications(prev => [newNotif!, ...prev]);
       }
 
-      // Randomly adjust bed occupancy levels
+      // Randomly adjust bed occupancy levels and gross revenue to simulate live hospital operations
       setHospitals(prev => prev.map(h => {
         if (h.id === 'hosp-1') {
           const change = Math.random() > 0.5 ? 1 : -1;
           const nextOccupied = Math.max(20, Math.min(h.bedsTotal - 5, h.bedsOccupied + change));
-          return { ...h, bedsOccupied: nextOccupied };
+          // Dynamically increment last month's revenue slightly to animate charts
+          const nextRevenue = [...h.revenue];
+          if (nextRevenue.length > 0) {
+            const added = [300, 400, 500, 800][Math.floor(Math.random() * 4)];
+            nextRevenue[nextRevenue.length - 1] += added;
+          }
+          return { ...h, bedsOccupied: nextOccupied, revenue: nextRevenue };
         }
         return h;
       }));
 
-    }, 12000);
+    }, 4500);
 
     return () => clearInterval(interval);
   }, []);

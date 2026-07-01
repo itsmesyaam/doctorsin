@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { useDemo } from '../context/DemoContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, Bot, Sparkles, Star } from 'lucide-react';
+import { MessageSquare, X, Send, Sparkles, AlertCircle, ArrowRight, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useDemo } from '../context/DemoContext';
 
 interface ChatMessage {
   sender: 'ai' | 'user';
   text: string;
   options?: string[];
+  action?: { label: string; onClick: () => void };
 }
 
 export const AIAssistant: React.FC = () => {
@@ -14,144 +16,262 @@ export const AIAssistant: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       sender: 'ai',
-      text: "Hello! I am your DOCTORSIN AI Health Navigator. How can I help you today?",
-      options: ['Check Vitals Symptoms', 'Find Cardiological Specialist', 'Hospital Bed Availability']
+      text: 'Namaskaram! I am your DOCTORSIN AI Assistant. Select an option below or describe your symptoms to find top specialists in Kochi.',
+      options: ['🌡️ Check Symptoms', '🏥 Nearest Hospitals', '💼 Health Packages', '🚨 SOS Emergency']
     }
   ]);
-  const [textVal, setTextVal] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  const [inputText, setInputText] = useState('');
+  const navigate = useNavigate();
+  const { changeRole } = useDemo();
 
-  const handleOptionClick = (opt: string) => {
-    // User message
-    const userMsg: ChatMessage = { sender: 'user', text: opt };
+  const handleOptionClick = (option: string) => {
+    // Add user message
+    const userMsg: ChatMessage = { sender: 'user', text: option };
     setMessages(prev => [...prev, userMsg]);
-    setIsTyping(true);
 
     setTimeout(() => {
-      let aiText = "I can definitely search that for you. Let me check the directory.";
-      let options: string[] = ['Check Symptoms', 'Exit Chat'];
-      
-      if (opt.includes('Symptoms')) {
-        aiText = "Please note: This is an AI checklist, not a diagnosis. Are you experiencing chest discomfort, breathlessness, or persistent fever?";
-        options = ['Chest Tightness', 'Seasonal Cough', 'Fever Checkup'];
-      } else if (opt.includes('Cardiological')) {
-        aiText = "We have 18 verified Cardiologists affiliated. Dr. Haridas is highly rated (4.8★) with next availability tomorrow at 10:00 AM. Would you like to schedule?";
-        options = ['Go to Booking', 'Check other doctors'];
-      } else if (opt.includes('Bed')) {
-        aiText = "Apollo Premium Clinic has 78 beds available. General Ward has 42% occupancy, while ICU ventilators are at 85%.";
-        options = ['View Bed Management', 'Platform Stats'];
-      } else if (opt.includes('Chest Tightness')) {
-        aiText = "Chest discomfort warrants careful checking. I recommend consulting Dr. Haridas (Cardiologist) or visiting the Apollo Emergency Department.";
-        options = ['Book Dr. Haridas', 'View emergency contacts'];
+      let aiResponse: ChatMessage = { sender: 'ai', text: '' };
+
+      if (option.includes('Check Symptoms')) {
+        aiResponse = {
+          sender: 'ai',
+          text: 'Please select your primary symptom category for clinical department mapping:',
+          options: ['Fever & Cold', 'Chest Tightness', 'Skin Allergy']
+        };
+      } else if (option.includes('Fever & Cold')) {
+        aiResponse = {
+          sender: 'ai',
+          text: 'A combination of fever and cold is best evaluated by General Medicine. We recommend consulting Dr. Haridas Menon at Aster Medcity, Edappally.',
+          action: {
+            label: 'Book Consultation (₹800)',
+            onClick: () => {
+              setIsOpen(false);
+              changeRole('patient');
+              navigate('/patient/find-doctor');
+            }
+          }
+        };
+      } else if (option.includes('Chest Tightness')) {
+        aiResponse = {
+          sender: 'ai',
+          text: 'Warning: Chest tightness can be a sign of a cardiac event. If acute, trigger our SOS panel. For routine checks, book Dr. Haridas Menon (Cardiology).',
+          action: {
+            label: 'Consult Cardiologist (₹800)',
+            onClick: () => {
+              setIsOpen(false);
+              changeRole('patient');
+              navigate('/patient/find-doctor');
+            }
+          }
+        };
+      } else if (option.includes('Skin Allergy')) {
+        aiResponse = {
+          sender: 'ai',
+          text: 'Skin rashes or itching are best evaluated by Dermatology. Dr. Anjali Nair is available for video consults today.',
+          action: {
+            label: 'Book Dermatologist (₹600)',
+            onClick: () => {
+              setIsOpen(false);
+              changeRole('patient');
+              navigate('/patient/find-doctor');
+            }
+          }
+        };
+      } else if (option.includes('Nearest Hospitals')) {
+        aiResponse = {
+          sender: 'ai',
+          text: 'Top multi-specialty complexes in Kochi with active ICU bed pools:\n\n1. **Aster Medcity** (Cheranallur, Kakkanad bypass)\n2. **Rajagiri Hospital** (Aluva)\n3. **Amrita Hospital** (Edappally)\n4. **Sunrise Hospital** (Kakkanad)',
+          options: ['🌡️ Check Symptoms', '💼 Health Packages']
+        };
+      } else if (option.includes('Health Packages')) {
+        aiResponse = {
+          sender: 'ai',
+          text: 'We offer specialized wellness packages in Ernakulam district starting at ₹1,999. Includes full pathology, CBC, cholesterol, and physician consultation.',
+          options: ['🌡️ Check Symptoms', '🏥 Nearest Hospitals']
+        };
+      } else if (option.includes('SOS Emergency')) {
+        aiResponse = {
+          sender: 'ai',
+          text: 'CRITICAL: Live coordinates dispatched. Our priority emergency ambulance pool has been notified. Ambulance AMB-402 is routing now.',
+          options: ['🌡️ Check Symptoms', '🏥 Nearest Hospitals']
+        };
+      } else {
+        aiResponse = {
+          sender: 'ai',
+          text: 'I apologize, I did not catch that. Please select one of our quick action options.',
+          options: ['🌡️ Check Symptoms', '🏥 Nearest Hospitals', '💼 Health Packages']
+        };
       }
-      
-      setMessages(prev => [...prev, { sender: 'ai', text: aiText, options }]);
-      setIsTyping(false);
-    }, 1000);
+
+      setMessages(prev => [...prev, aiResponse]);
+    }, 600);
   };
 
-  const handleSendText = (e: React.FormEvent) => {
+  const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!textVal.trim()) return;
+    if (!inputText.trim()) return;
 
-    const query = textVal;
-    setMessages(prev => [...prev, { sender: 'user', text: query }]);
-    setTextVal('');
-    setIsTyping(true);
+    const userText = inputText;
+    setInputText('');
+    setMessages(prev => [...prev, { sender: 'user', text: userText }]);
 
     setTimeout(() => {
-      let aiText = `Understood. I've noted down your query: "${query}". Let me lookup the medical directory database.`;
-      
-      if (query.toLowerCase().includes('heart') || query.toLowerCase().includes('chest')) {
-        aiText = "For cardiovascular concerns, I suggest booking a checkup with Dr. Haridas. You can click 'Go to Booking' to schedule.";
-      } else if (query.toLowerCase().includes('asthma') || query.toLowerCase().includes('breath')) {
-        aiText = "For asthma management, we recommend scheduling a virtual telehealth review with our pulmonologists.";
+      const lower = userText.toLowerCase();
+      let aiResponse: ChatMessage = { sender: 'ai', text: '' };
+
+      if (lower.includes('fever') || lower.includes('cough') || lower.includes('headache')) {
+        aiResponse = {
+          sender: 'ai',
+          text: 'Fever or headaches should be evaluated by a General Physician. Dr. Haridas Menon is available at Aster Medcity.',
+          action: {
+            label: 'Book Consultation (₹800)',
+            onClick: () => {
+              setIsOpen(false);
+              changeRole('patient');
+              navigate('/patient/find-doctor');
+            }
+          }
+        };
+      } else if (lower.includes('heart') || lower.includes('chest') || lower.includes('cardio')) {
+        aiResponse = {
+          sender: 'ai',
+          text: 'We recommend immediate evaluation by Cardiology department. You can book an appointment with our specialists in Kochi.',
+          action: {
+            label: 'View Cardiologists',
+            onClick: () => {
+              setIsOpen(false);
+              changeRole('patient');
+              navigate('/patient/find-doctor');
+            }
+          }
+        };
+      } else if (lower.includes('hospital') || lower.includes('clinic')) {
+        aiResponse = {
+          sender: 'ai',
+          text: 'Here are the nearest verified clinics in Kochi: Aster Medcity, Amrita Hospital, Sunrise Hospital, and Renai Medicity.',
+          options: ['🌡️ Check Symptoms', '💼 Health Packages']
+        };
+      } else {
+        aiResponse = {
+          sender: 'ai',
+          text: 'Understood. Would you like to check diagnostic health packages or find certified medical specialists near Ernakulam?',
+          options: ['🌡️ Check Symptoms', '🏥 Nearest Hospitals', '💼 Health Packages']
+        };
       }
 
-      setMessages(prev => [...prev, { sender: 'ai', text: aiText, options: ['Check Symptoms', 'Find Cardiologist'] }]);
-      setIsTyping(false);
-    }, 1200);
+      setMessages(prev => [...prev, aiResponse]);
+    }, 650);
   };
 
   return (
-    <div className="fixed bottom-6 left-6 z-50">
+    <>
+      {/* Floating Chat Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <motion.button
+          onClick={() => setIsOpen(!isOpen)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="h-14 w-14 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shadow-xl border border-blue-500/20 cursor-pointer select-none"
+        >
+          {isOpen ? <X size={22} /> : <MessageSquare size={22} />}
+        </motion.button>
+      </div>
+
+      {/* Chat Window Popup */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="mb-3 w-80 sm:w-96 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[400px] text-left"
+            exit={{ opacity: 0, y: 50, scale: 0.9 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+            className="fixed bottom-24 right-6 w-[90vw] sm:w-[380px] h-[500px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl z-50 overflow-hidden flex flex-col select-none text-left"
           >
-            {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-sky-500 text-white p-4 flex justify-between items-center shrink-0">
-              <div className="flex items-center gap-2">
-                <Bot size={20} className="text-white" />
+            {/* Chat Header */}
+            <div className="p-4 bg-gradient-to-r from-blue-700 to-blue-600 text-white flex justify-between items-center shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-white/10 rounded-xl">
+                  <Sparkles size={16} />
+                </div>
                 <div>
-                  <h4 className="font-extrabold text-sm leading-tight">AI Health Navigator</h4>
-                  <span className="text-[10px] text-blue-100 font-semibold flex items-center gap-1">
-                    <Sparkles size={10} /> Powered by DOCTORSIN AI
-                  </span>
+                  <h4 className="font-bold text-xs">DOCTORSIN AI Assistant</h4>
+                  <span className="text-[9px] text-blue-100 font-medium">Kerala eHealth Care Roster</span>
                 </div>
               </div>
               <button 
                 onClick={() => setIsOpen(false)}
-                className="p-1 hover:bg-white/10 rounded-lg text-white"
+                className="p-1 hover:bg-white/15 rounded-lg text-white/80 transition-colors"
               >
                 <X size={16} />
               </button>
             </div>
 
-            {/* Chat Messages */}
+            {/* Chat Messages Log */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((msg, index) => (
-                <div key={index} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                  <div className={`p-3 rounded-2xl max-w-[85%] text-xs leading-relaxed font-semibold ${
+              {messages.map((msg, idx) => (
+                <div 
+                  key={idx} 
+                  className={`flex gap-2 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto flex-row-reverse' : ''}`}
+                >
+                  <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-semibold ${
                     msg.sender === 'user' 
-                      ? 'bg-blue-600 text-white rounded-tr-none' 
-                      : 'bg-slate-50 dark:bg-slate-850 text-slate-800 dark:text-slate-205 rounded-tl-none border border-slate-200/50 dark:border-slate-800'
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
                   }`}>
-                    {msg.text}
+                    {msg.sender === 'user' ? <User size={12} /> : 'AI'}
                   </div>
                   
-                  {/* Interactive options bubbles */}
-                  {msg.options && msg.options.length > 0 && (
-                    <div className="flex gap-1.5 flex-wrap mt-2 max-w-[90%]">
-                      {msg.options.map((opt) => (
-                        <button
-                          key={opt}
-                          onClick={() => handleOptionClick(opt)}
-                          className="bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/50 text-[10px] font-bold px-3 py-1.5 rounded-full hover:bg-blue-100/50 dark:hover:bg-blue-900/80 transition-colors text-left"
-                        >
-                          {opt}
-                        </button>
-                      ))}
+                  <div className="space-y-2">
+                    <div className={`p-3 rounded-2xl text-xs leading-relaxed ${
+                      msg.sender === 'user'
+                        ? 'bg-blue-600 text-white rounded-tr-none'
+                        : 'bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-850 text-slate-800 dark:text-slate-250 rounded-tl-none'
+                    }`}>
+                      {msg.text}
                     </div>
-                  )}
+
+                    {/* Action button redirects */}
+                    {msg.action && (
+                      <button
+                        onClick={msg.action.onClick}
+                        className="bg-emerald-650 hover:bg-emerald-700 text-white font-bold text-[10px] px-3.5 py-2 rounded-xl transition-all shadow-md shadow-emerald-500/10 flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>{msg.action.label}</span>
+                        <ArrowRight size={12} />
+                      </button>
+                    )}
+
+                    {/* Quick-reply chip selectors */}
+                    {msg.options && (
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {msg.options.map((opt) => (
+                          <button
+                            key={opt}
+                            onClick={() => handleOptionClick(opt)}
+                            className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-[10px] px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
-
-              {isTyping && (
-                <div className="flex items-center gap-1.5 text-slate-400 text-[10px] font-medium p-1">
-                  <Bot size={14} className="animate-spin" />
-                  <span>AI assistant is typing...</span>
-                </div>
-              )}
             </div>
 
-            {/* TextInput */}
-            <form onSubmit={handleSendText} className="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex gap-2 shrink-0">
+            {/* Input Bar */}
+            <form onSubmit={handleSend} className="p-3 border-t border-slate-150 dark:border-slate-850 bg-slate-50 dark:bg-slate-950 shrink-0 flex items-center gap-2">
               <input 
                 type="text" 
-                placeholder="Ask symptoms, recommend doctors..." 
-                value={textVal}
-                onChange={(e) => setTextVal(e.target.value)}
-                className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-500 text-slate-800 dark:text-white"
+                placeholder="Ask about symptoms, hospitals, etc..." 
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs outline-none focus:border-blue-500 dark:text-white"
               />
               <button 
                 type="submit"
-                disabled={!textVal.trim()}
-                className="p-2 bg-blue-600 text-white rounded-xl disabled:opacity-50"
+                className="p-2.5 bg-blue-650 text-white rounded-xl hover:bg-blue-755 transition-colors cursor-pointer"
               >
                 <Send size={14} />
               </button>
@@ -159,16 +279,6 @@ export const AIAssistant: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Floating Button Toggle */}
-      <motion.button
-        onClick={() => setIsOpen(!isOpen)}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="h-12 w-12 bg-gradient-to-tr from-blue-600 to-sky-500 text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:shadow-xl border border-blue-500/20"
-      >
-        {isOpen ? <X size={20} /> : <MessageSquare size={20} />}
-      </motion.button>
-    </div>
+    </>
   );
 };
