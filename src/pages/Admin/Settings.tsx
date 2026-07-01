@@ -91,6 +91,22 @@ export const AdminSettings: React.FC = () => {
           </div>
         </form>
       </div>
+
+      {/* Presentation Options */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-8 space-y-4 shadow-sm">
+        <h3 className="font-bold text-slate-800 dark:text-white text-sm uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-3">Presentation Variables</h3>
+        <p className="text-xs text-slate-500 dark:text-slate-400">Manage the platform presentation settings and trigger cinematic intro animations.</p>
+        <button
+          type="button"
+          onClick={() => {
+            localStorage.removeItem('doctorsin_intro_played');
+            window.location.reload();
+          }}
+          className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 font-bold text-xs px-6 py-3 rounded-xl transition-all cursor-pointer"
+        >
+          Replay Cinematic Intro (Reloads Page)
+        </button>
+      </div>
     </div>
   );
 };
