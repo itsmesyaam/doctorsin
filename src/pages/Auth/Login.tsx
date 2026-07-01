@@ -15,9 +15,9 @@ export const Login: React.FC = () => {
   const [otpSent, setOtpSent] = useState(false);
 
   const rolesConfig: { id: UserRole; name: string; icon: any; color: string; desc: string; route: string; defaultEmail: string }[] = [
-    { id: 'patient', name: 'Patient', icon: User, color: 'text-blue-500 bg-blue-50 border-blue-200', desc: 'Alexander Fleming', route: '/patient', defaultEmail: 'patient@doctorsin.com' },
-    { id: 'doctor', name: 'Doctor', icon: Stethoscope, color: 'text-emerald-500 bg-emerald-50 border-emerald-200', desc: 'Dr. Haridas Nair', route: '/doctor', defaultEmail: 'doctor@doctorsin.com' },
-    { id: 'hospital', name: 'Hospital', icon: Building2, color: 'text-purple-500 bg-purple-50 border-purple-200', desc: 'Apollo Premium Clinic', route: '/hospital', defaultEmail: 'hospital@doctorsin.com' },
+    { id: 'patient', name: 'Patient', icon: User, color: 'text-blue-500 bg-blue-50 border-blue-200', desc: 'Hari Krishnan', route: '/patient', defaultEmail: 'patient@doctorsin.com' },
+    { id: 'doctor', name: 'Doctor', icon: Stethoscope, color: 'text-emerald-500 bg-emerald-50 border-emerald-200', desc: 'Dr. Haridas Menon', route: '/doctor', defaultEmail: 'doctor@doctorsin.com' },
+    { id: 'hospital', name: 'Hospital', icon: Building2, color: 'text-purple-500 bg-purple-50 border-purple-200', desc: 'Aster Medcity', route: '/hospital', defaultEmail: 'hospital@doctorsin.com' },
     { id: 'admin', name: 'Admin', icon: ShieldAlert, color: 'text-rose-500 bg-rose-50 border-rose-200', desc: 'System Admin', route: '/admin', defaultEmail: 'admin@doctorsin.com' }
   ];
 
