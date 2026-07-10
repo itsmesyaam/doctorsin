@@ -50,21 +50,21 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col lg:flex-row transition-colors duration-300">
       
       {/* Sidebar - Desktop Only */}
-      <aside className="hidden lg:flex flex-col w-72 bg-slate-900 dark:bg-slate-950 text-slate-300 border-r border-slate-805 dark:border-slate-900 shrink-0">
+      <aside className="hidden lg:flex flex-col w-72 m-4 mr-0 rounded-[2rem] bg-white/70 dark:bg-slate-900/70 border border-slate-200/50 dark:border-slate-800/40 text-slate-800 dark:text-slate-300 backdrop-blur-xl shrink-0 shadow-sm transition-all overflow-hidden">
         {/* Brand Logo */}
-        <div className="h-20 flex items-center px-8 border-b border-slate-855 dark:border-slate-900">
+        <div className="h-20 flex items-center px-8 border-b border-slate-100 dark:border-slate-850">
           <Link to="/" className="flex items-center group">
-            <DoctorsInLogo variant="horizontal" size="sm" theme="dark" />
+            <DoctorsInLogo variant="horizontal" size="sm" theme={theme === 'light' ? 'light' : 'dark'} />
           </Link>
         </div>
 
         {/* Profile Card */}
-        <div className="p-6 border-b border-slate-805 dark:border-slate-900">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-850">
           <div className="flex items-center gap-4 text-left">
             <MedicalAvatar name={userName} type={role === 'doctor' ? 'doctor' : role === 'hospital' ? 'hospital' : 'patient'} size={12} />
             <div className="truncate">
-              <h4 className="text-sm font-semibold text-white truncate">{userName}</h4>
-              <span className="text-[11px] font-medium text-slate-400 capitalize tracking-wider">{userRoleTitle}</span>
+              <h4 className="text-sm font-bold text-slate-800 dark:text-white truncate">{userName}</h4>
+              <span className="text-[10px] font-semibold text-slate-400 capitalize tracking-wider">{userRoleTitle}</span>
             </div>
           </div>
         </div>
@@ -80,10 +80,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                 key={item.name}
                 to={item.path}
                 className={({ isActive: linkActive }) =>
-                  `flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all group relative ${
+                  `flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all group relative ${
                     linkActive || isActive
-                      ? 'text-white bg-blue-650 shadow-md shadow-blue-600/10'
-                      : 'text-slate-400 hover:text-slate-205 hover:bg-slate-800/40'
+                      ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-805 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-850'
                   }`
                 }
               >
@@ -100,10 +100,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-slate-805 dark:border-slate-900 space-y-2">
+        <div className="p-4 border-t border-slate-100 dark:border-slate-850 space-y-2">
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-rose-455 hover:bg-rose-955/20 transition-all duration-200 text-left cursor-pointer"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-955/20 transition-all duration-200 text-left cursor-pointer"
           >
             <LogOut size={18} />
             <span>Return to Landing</span>
@@ -119,7 +119,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <div className="flex items-center gap-3">
             {/* Logo on mobile header */}
             <Link to="/" className="flex lg:hidden items-center">
-              <DoctorsInLogo variant="horizontal" size="sm" theme="dark" />
+              <DoctorsInLogo variant="horizontal" size="sm" theme={theme === 'light' ? 'light' : 'dark'} />
             </Link>
 
             <div className="hidden lg:block text-left">

@@ -8,17 +8,48 @@ export const Calendar: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState('Mon');
 
   const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  
-  const slotsConfig = [
-    { time: '09:00 AM', status: 'available' },
-    { time: '10:00 AM', status: 'booked', patient: 'Alexander Fleming', reason: 'Asthma review' },
-    { time: '11:00 AM', status: 'booked', patient: 'Sarah Jenkins', reason: 'High fever inspect' },
-    { time: '12:00 PM', status: 'available' },
-    { time: '02:00 PM', status: 'available' },
-    { time: '03:00 PM', status: 'off' },
-    { time: '04:00 PM', status: 'booked', patient: 'Michael Chang', reason: 'Cardio prescription follow-up' },
-    { time: '05:00 PM', status: 'available' }
-  ];
+
+  const weekdayToDayNum = (day: string) => {
+    const idx = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(day);
+    return idx === -1 ? 1 : idx;
+  };
+
+  const getSlotsForDay = () => {
+    const isWorkingDay = activeDoctor.availability.days.includes(selectedDay);
+    const masterSlots = ["09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM"];
+    
+    return masterSlots.map(time => {
+      if (!isWorkingDay) {
+        return { time, status: 'off' as const };
+      }
+      
+      if (!activeDoctor.availability.slots.includes(time)) {
+        return { time, status: 'off' as const };
+      }
+      
+      const targetDayNum = weekdayToDayNum(selectedDay);
+      const appt = appointments.find(a => {
+        if (a.doctorId !== activeDoctor.id || a.timeSlot !== time || a.status === 'cancelled') {
+          return false;
+        }
+        const d = new Date(a.date);
+        return d.getDay() === targetDayNum;
+      });
+      
+      if (appt) {
+        return { 
+          time, 
+          status: 'booked' as const, 
+          patient: appt.patientName, 
+          reason: appt.reason 
+        };
+      }
+      
+      return { time, status: 'available' as const };
+    });
+  };
+
+  const slotsConfig = getSlotsForDay();
 
   return (
     <div className="space-y-8 text-left">

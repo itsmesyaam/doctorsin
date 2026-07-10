@@ -1,60 +1,33 @@
-import React, { useState } from 'react';
-import { useDemo } from '../../context/DemoContext';
+import React, { useState, useEffect, useRef } from 'react';
+import { useDemo, Bed } from '../../context/DemoContext';
 import { BedDouble, AlertCircle, X, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface Bed {
-  id: number;
-  label: string;
-  type: 'ICU' | 'General' | 'Recovery';
-  status: 'available' | 'occupied' | 'cleaning';
-  patientName?: string;
-  admitDate?: string;
-}
-
 export const Beds: React.FC = () => {
-  const { activeHospital, allocateBed, dischargeBed } = useDemo();
+  const { activeHospital, allocateBed, dischargeBed, bedsGrid, updateBedStatus } = useDemo();
   
-  const [bedsGrid, setBedsGrid] = useState<Bed[]>(() => {
-    return Array.from({ length: 24 }, (_, i) => {
-      const id = i + 1;
-      let type: Bed['type'] = 'General';
-      if (id <= 6) type = 'ICU';
-      else if (id >= 19) type = 'Recovery';
-
-      let status: Bed['status'] = 'available';
-      let patientName = undefined;
-      let admitDate = undefined;
-
-      if (id === 1 || id === 3 || id === 7 || id === 10 || id === 15 || id === 20) {
-        status = 'occupied';
-        patientName = ['John Smith', 'Sarah Connor', 'Peter Parker', 'Bruce Wayne', 'Clark Kent', 'Diana Prince'][id % 6];
-        admitDate = '2026-06-28';
-      } else if (id === 5 || id === 12) {
-        status = 'cleaning';
-      }
-
-      return {
-        id,
-        label: `${type.charAt(0)}-${id.toString().padStart(3, '0')}`,
-        type,
-        status,
-        patientName,
-        admitDate
-      };
-    });
-  });
-
-  const [selectedBed, setSelectedBed] = useState<Bed | null>(null);
+  const [selectedBedId, setSelectedBedId] = useState<number | null>(null);
   const [patientInput, setPatientInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Keep track of cleaning state timeouts to prevent memory leaks on unmount
+  const cleaningTimeouts = useRef<Record<number, any>>({});
+
+  useEffect(() => {
+    return () => {
+      // Cleanup all pending cleaning timers on component unmount
+      Object.values(cleaningTimeouts.current).forEach(t => clearTimeout(t));
+    };
+  }, []);
+
+  const selectedBed = bedsGrid.find(b => b.id === selectedBedId) || null;
 
   const occupiedCount = bedsGrid.filter(b => b.status === 'occupied').length;
   const cleaningCount = bedsGrid.filter(b => b.status === 'cleaning').length;
   const availableCount = bedsGrid.length - occupiedCount - cleaningCount;
 
   const handleBedClick = (bed: Bed) => {
-    setSelectedBed(bed);
+    setSelectedBedId(bed.id);
   };
 
   const handleAllocate = (e: React.FormEvent) => {
@@ -63,22 +36,11 @@ export const Beds: React.FC = () => {
 
     setIsSubmitting(true);
     setTimeout(() => {
-      setBedsGrid(prev => prev.map(b => {
-        if (b.id === selectedBed.id) {
-          return {
-            ...b,
-            status: 'occupied',
-            patientName: patientInput,
-            admitDate: new Date().toISOString().split('T')[0]
-          };
-        }
-        return b;
-      }));
-
+      updateBedStatus(selectedBed.id, 'occupied', patientInput.trim(), new Date().toISOString().split('T')[0]);
       allocateBed(activeHospital.id, 1);
       
       setIsSubmitting(false);
-      setSelectedBed(null);
+      setSelectedBedId(null);
       setPatientInput('');
     }, 600);
   };
@@ -88,26 +50,21 @@ export const Beds: React.FC = () => {
 
     setIsSubmitting(true);
     setTimeout(() => {
-      setBedsGrid(prev => prev.map(b => {
-        if (b.id === selectedBed.id) {
-          return { ...b, status: 'cleaning', patientName: undefined, admitDate: undefined };
-        }
-        return b;
-      }));
-
+      const bedId = selectedBed.id;
+      updateBedStatus(bedId, 'cleaning');
       dischargeBed(activeHospital.id, 1);
 
       setIsSubmitting(false);
-      setSelectedBed(null);
+      setSelectedBedId(null);
 
-      const bedId = selectedBed.id;
-      setTimeout(() => {
-        setBedsGrid(prev => prev.map(b => {
-          if (b.id === bedId) {
-            return { ...b, status: 'available' };
-          }
-          return b;
-        }));
+      // Cancel any pre-existing cleanup timer for this specific bed
+      if (cleaningTimeouts.current[bedId]) {
+        clearTimeout(cleaningTimeouts.current[bedId]);
+      }
+
+      cleaningTimeouts.current[bedId] = setTimeout(() => {
+        updateBedStatus(bedId, 'available');
+        delete cleaningTimeouts.current[bedId];
       }, 4000);
 
     }, 600);
@@ -186,7 +143,7 @@ export const Beds: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.6 }}
               exit={{ opacity: 0 }}
-              onClick={() => setSelectedBed(null)}
+              onClick={() => setSelectedBedId(null)}
               className="absolute inset-0 bg-slate-900"
             />
             
@@ -197,7 +154,7 @@ export const Beds: React.FC = () => {
               className="relative w-full max-w-sm bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 rounded-t-[2rem] sm:rounded-3xl shadow-2xl p-6 z-10"
             >
               <button 
-                onClick={() => setSelectedBed(null)}
+                onClick={() => setSelectedBedId(null)}
                 className="absolute top-5 right-5 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-400"
               >
                 <X size={16} />

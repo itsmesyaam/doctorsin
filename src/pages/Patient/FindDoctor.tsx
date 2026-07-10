@@ -3,7 +3,7 @@ import { useDemo } from '../../context/DemoContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, Star, Shield, Calendar, Clock, DollarSign, 
-  MapPin, CheckCircle, ChevronRight, X, Loader2, CreditCard
+  MapPin, CheckCircle, ChevronRight, X, Loader2, CreditCard, AlertCircle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { MedicalAvatar } from '../../components/MedicalAvatar';
@@ -26,6 +26,7 @@ export const FindDoctor: React.FC = () => {
   const [apptReason, setApptReason] = useState('');
   const [consultType, setConsultType] = useState<'video' | 'in-person'>('video');
   const [isBookingSubmitting, setIsBookingSubmitting] = useState(false);
+  const [bookingError, setBookingError] = useState<string | null>(null);
   const [bookFor, setBookFor] = useState<'self' | 'family'>('self');
   const [familyRelation, setFamilyRelation] = useState<'parent' | 'child' | 'spouse' | 'senior'>('parent');
   const [familyPatientName, setFamilyPatientName] = useState('');
@@ -86,6 +87,7 @@ export const FindDoctor: React.FC = () => {
     e.preventDefault();
     if (!selectedDate || !selectedSlot || !apptReason) return;
     
+    setBookingError(null);
     setIsBookingSubmitting(true);
     try {
       await bookAppointment(bookingDoc.id, selectedDate, selectedSlot, apptReason, consultType);
@@ -98,8 +100,9 @@ export const FindDoctor: React.FC = () => {
       });
       
       setBookingStep(3);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setBookingError(err?.message || "An unexpected error occurred while booking. Please try again.");
     } finally {
       setIsBookingSubmitting(false);
     }
@@ -112,6 +115,7 @@ export const FindDoctor: React.FC = () => {
     setSelectedSlot('');
     setApptReason('');
     setConsultType('video');
+    setBookingError(null);
   };
 
   return (
@@ -355,6 +359,12 @@ export const FindDoctor: React.FC = () => {
                 {/* STEP 2: BOOKING DETAILS & PAYMENT */}
                 {bookingStep === 2 && (
                   <form onSubmit={handleBookingSubmit} className="space-y-6 text-left">
+                    {bookingError && (
+                      <div className="p-4 bg-rose-50 dark:bg-rose-950/20 border border-rose-200/50 dark:border-rose-900/50 rounded-2xl flex items-start gap-2.5 text-rose-600 dark:text-rose-455 text-xs font-semibold animate-shake">
+                        <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                        <span>{bookingError}</span>
+                      </div>
+                    )}
                     {/* Family Workflow Selector */}
                     <div className="space-y-2">
                       <label className="text-xs font-bold text-slate-500">Patient Details (Booking For)</label>

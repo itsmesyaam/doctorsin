@@ -6,6 +6,15 @@ import {
 
 export type UserRole = 'patient' | 'doctor' | 'hospital' | 'admin';
 
+export interface Bed {
+  id: number;
+  label: string;
+  type: 'ICU' | 'General' | 'Recovery';
+  status: 'available' | 'occupied' | 'cleaning';
+  patientName?: string;
+  admitDate?: string;
+}
+
 interface DemoContextType {
   role: UserRole;
   setRole: (role: UserRole) => void;
@@ -24,6 +33,10 @@ interface DemoContextType {
   theme: 'light' | 'dark';
   toggleTheme: () => void;
   
+  // Persisted Bed Management State
+  bedsGrid: Bed[];
+  updateBedStatus: (bedId: number, status: Bed['status'], patientName?: string, admitDate?: string) => void;
+  
   // Actions
   changeRole: (newRole: UserRole) => void;
   bookAppointment: (doctorId: string, date: string, timeSlot: string, reason: string, type: 'video' | 'in-person') => Promise<Appointment>;
@@ -40,22 +53,96 @@ interface DemoContextType {
 
 const DemoContext = createContext<DemoContextType | undefined>(undefined);
 
+export interface SessionData {
+  doctors: Doctor[];
+  hospitals: Hospital[];
+  patients: Patient[];
+  appointments: Appointment[];
+  prescriptions: Prescription[];
+  reports: MedicalReport[];
+  notifications: Notification[];
+  bedsGrid: Bed[];
+}
+
+// Helper function to synchronously initialize state from localStorage or seeds
+const loadSeededState = (): SessionData => {
+  const cached = localStorage.getItem('doctorsin_data_seeded');
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      // Strict property checks to avoid crashing on corrupted object shapes
+      if (
+        parsed &&
+        Array.isArray(parsed.doctors) &&
+        Array.isArray(parsed.hospitals) &&
+        Array.isArray(parsed.patients) &&
+        Array.isArray(parsed.appointments) &&
+        Array.isArray(parsed.prescriptions) &&
+        Array.isArray(parsed.reports) &&
+        Array.isArray(parsed.notifications)
+      ) {
+        // Handle bedGrid backwards compatibility
+        if (!Array.isArray(parsed.bedsGrid)) {
+          parsed.bedsGrid = generateInitialBeds();
+        }
+        return parsed as SessionData;
+      }
+    } catch (e) {
+      console.error("Critical error parsing localStorage cache, falling back to seeds.", e);
+    }
+  }
+
+  // Generate new seeds
+  const seeds = generateSeedData();
+  const initialData: SessionData = {
+    ...seeds,
+    bedsGrid: generateInitialBeds()
+  };
+  localStorage.setItem('doctorsin_data_seeded', JSON.stringify(initialData));
+  return initialData;
+};
+
+// Generates initial clinical bed status array
+const generateInitialBeds = (): Bed[] => {
+  return Array.from({ length: 24 }, (_, i) => {
+    const id = i + 1;
+    let type: Bed['type'] = 'General';
+    if (id <= 6) type = 'ICU';
+    else if (id >= 19) type = 'Recovery';
+
+    let status: Bed['status'] = 'available';
+    let patientName = undefined;
+    let admitDate = undefined;
+
+    if (id === 1 || id === 3 || id === 7 || id === 10 || id === 15 || id === 20) {
+      status = 'occupied';
+      patientName = ['John Smith', 'Sarah Connor', 'Peter Parker', 'Bruce Wayne', 'Clark Kent', 'Diana Prince'][id % 6];
+      admitDate = '2026-06-28';
+    } else if (id === 5 || id === 12) {
+      status = 'cleaning';
+    }
+
+    return {
+      id,
+      label: `${type.charAt(0)}-${id.toString().padStart(3, '0')}`,
+      type,
+      status,
+      patientName,
+      admitDate
+    };
+  });
+};
+
 export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Try loading from localStorage, otherwise generate seeds
+  // Synchronous state initialization to avoid mount race conditions and data loss
+  const [sessionData, setSessionData] = useState<SessionData>(() => loadSeededState());
+
   const [role, setRoleState] = useState<UserRole>(() => {
     return (localStorage.getItem('demo_role') as UserRole) || 'patient';
   });
 
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [hospitals, setHospitals] = useState<Hospital[]>([]);
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
-  const [reports, setReports] = useState<MedicalReport[]>([]);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  
-  const [commissionRate, setCommissionRate] = useState(15); // %
-  const [telehealthFee, setTelehealthFee] = useState(10); // $
+  const [commissionRate, setCommissionRate] = useState(15); 
+  const [telehealthFee, setTelehealthFee] = useState(10); 
 
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (localStorage.getItem('demo_theme') as 'light' | 'dark') || 'light';
@@ -79,11 +166,12 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [theme]);
 
-  // Fake background live updates timer (Simulating live application behavior)
+  // Fake background live updates timer
   useEffect(() => {
     const interval = setInterval(() => {
       const randType = Math.floor(Math.random() * 4);
       let newNotif: Notification | null = null;
+      const timestamp = 'Just now';
       
       if (randType === 0) {
         newNotif = {
@@ -92,7 +180,7 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
           role: 'patient',
           title: 'Aster Medcity Lab Report',
           message: 'Your laboratory lipid profile test report has been signed by Dr. Haridas Menon.',
-          time: 'Just now',
+          time: timestamp,
           read: false
         };
       } else if (randType === 1) {
@@ -102,7 +190,7 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
           role: 'doctor',
           title: 'Queue Check-In',
           message: 'Patient Rahul Varghese has checked in via active QR check-in.',
-          time: 'Just now',
+          time: timestamp,
           read: false
         };
       } else if (randType === 2) {
@@ -112,7 +200,7 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
           role: 'hospital',
           title: 'Emergency Red Alert',
           message: 'Ambulance AMB-402 dispatched from Kakkanad bypass with a critical patient.',
-          time: 'Just now',
+          time: timestamp,
           read: false
         };
       } else {
@@ -122,98 +210,55 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
           role: 'admin',
           title: 'Razorpay Split Credited',
           message: 'Commission margin slice of ₹120 settled for transaction TXN-90234.',
-          time: 'Just now',
+          time: timestamp,
           read: false
         };
       }
 
-      if (newNotif) {
-        setNotifications(prev => [newNotif!, ...prev]);
-      }
-
-      // Randomly adjust bed occupancy levels and gross revenue to simulate live hospital operations
-      setHospitals(prev => prev.map(h => {
-        if (h.id === 'hosp-1') {
-          const change = Math.random() > 0.5 ? 1 : -1;
-          const nextOccupied = Math.max(20, Math.min(h.bedsTotal - 5, h.bedsOccupied + change));
-          // Dynamically increment last month's revenue slightly to animate charts
-          const nextRevenue = [...h.revenue];
-          if (nextRevenue.length > 0) {
-            const added = [300, 400, 500, 800][Math.floor(Math.random() * 4)];
-            nextRevenue[nextRevenue.length - 1] += added;
+      setSessionData(prev => {
+        const nextNotifs = newNotif ? [newNotif, ...prev.notifications] : prev.notifications;
+        const nextHospitals = prev.hospitals.map(h => {
+          if (h.id === 'hosp-1') {
+            const change = Math.random() > 0.5 ? 1 : -1;
+            const nextOccupied = Math.max(20, Math.min(h.bedsTotal - 5, h.bedsOccupied + change));
+            const nextRevenue = [...h.revenue];
+            if (nextRevenue.length > 0) {
+              const added = [300, 400, 500, 800][Math.floor(Math.random() * 4)];
+              nextRevenue[nextRevenue.length - 1] += added;
+            }
+            return { ...h, bedsOccupied: nextOccupied, revenue: nextRevenue };
           }
-          return { ...h, bedsOccupied: nextOccupied, revenue: nextRevenue };
-        }
-        return h;
-      }));
+          return h;
+        });
+
+        return {
+          ...prev,
+          notifications: nextNotifs,
+          hospitals: nextHospitals
+        };
+      });
 
     }, 4500);
 
     return () => clearInterval(interval);
   }, []);
 
-  // Initialize and load
+  // Save changes to localStorage on any state modification
   useEffect(() => {
-    const cachedData = localStorage.getItem('doctorsin_data_seeded');
-    if (cachedData) {
-      try {
-        const parsed = JSON.parse(cachedData);
-        setDoctors(parsed.doctors);
-        setHospitals(parsed.hospitals);
-        setPatients(parsed.patients);
-        setAppointments(parsed.appointments);
-        setPrescriptions(parsed.prescriptions);
-        setReports(parsed.reports);
-        setNotifications(parsed.notifications);
-      } catch (e) {
-        console.error("Error parsing seeded storage, re-seeding", e);
-        initializeSeeds();
-      }
-    } else {
-      initializeSeeds();
-    }
-  }, []);
+    localStorage.setItem('doctorsin_data_seeded', JSON.stringify(sessionData));
+  }, [sessionData]);
 
-  const initializeSeeds = () => {
-    const data = generateSeedData();
-    setDoctors(data.doctors);
-    setHospitals(data.hospitals);
-    setPatients(data.patients);
-    setAppointments(data.appointments);
-    setPrescriptions(data.prescriptions);
-    setReports(data.reports);
-    setNotifications(data.notifications);
-    saveToStorage(data);
-  };
+  // Extract variables defensively from unified state object
+  const doctors = sessionData.doctors || [];
+  const hospitals = sessionData.hospitals || [];
+  const patients = sessionData.patients || [];
+  const appointments = sessionData.appointments || [];
+  const prescriptions = sessionData.prescriptions || [];
+  const reports = sessionData.reports || [];
+  const notifications = sessionData.notifications || [];
+  const bedsGrid = sessionData.bedsGrid || [];
 
-  const saveToStorage = (currentData: {
-    doctors: Doctor[];
-    hospitals: Hospital[];
-    patients: Patient[];
-    appointments: Appointment[];
-    prescriptions: Prescription[];
-    reports: MedicalReport[];
-    notifications: Notification[];
-  }) => {
-    localStorage.setItem('doctorsin_data_seeded', JSON.stringify(currentData));
-  };
-
-  // Sync to storage on state updates
-  useEffect(() => {
-    if (doctors.length > 0) {
-      saveToStorage({
-        doctors,
-        hospitals,
-        patients,
-        appointments,
-        prescriptions,
-        reports,
-        notifications
-      });
-    }
-  }, [doctors, hospitals, patients, appointments, prescriptions, reports, notifications]);
-
-  // Active placeholders for dashboards
+  // Active placeholders for dashboards (with robust fallbacks)
   const activePatient = patients.find(p => p.id === 'pat-active') || {
     id: 'pat-active',
     name: 'Hari Krishnan',
@@ -237,7 +282,7 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
     locality: 'Edappally',
     fee: 800,
     bio: 'Experienced Cardiologist',
-    imageUrl: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=200',
+    imageUrl: '',
     availability: { days: ['Mon', 'Wed'], slots: ['09:00 AM', '10:00 AM'] },
     hospitalId: 'hosp-1',
     hospitalName: 'Aster Medcity',
@@ -254,7 +299,7 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
     departments: ['Cardiology', 'Dermatology'],
     revenue: [80000, 92000, 85000, 95000, 110000, 105000],
     doctorsCount: 12,
-    imageUrl: 'https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?auto=format&fit=crop&q=80&w=400',
+    imageUrl: '',
     status: 'approved' as const
   };
 
@@ -264,7 +309,7 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('demo_role', newRole);
   };
 
-  // 1. Book Appointment
+  // 1. Book Appointment (Strict validation checks)
   const bookAppointment = (
     doctorId: string, 
     date: string, 
@@ -272,9 +317,26 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
     reason: string, 
     type: 'video' | 'in-person'
   ): Promise<Appointment> => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const doc = doctors.find(d => d.id === doctorId)!;
+        // Defensive check: validate inputs
+        if (!doctorId || !date || !timeSlot || !reason) {
+          return reject(new Error("Missing parameter requirements for appointment booking."));
+        }
+
+        const doc = doctors.find(d => d.id === doctorId);
+        if (!doc) {
+          return reject(new Error(`Physician with ID '${doctorId}' was not found in the directory.`));
+        }
+
+        // Prevent double booking logic conflict
+        const isDoubleBooked = appointments.some(
+          a => a.doctorId === doctorId && a.date === date && a.timeSlot === timeSlot && a.status === 'upcoming'
+        );
+        if (isDoubleBooked) {
+          return reject(new Error("The selected time slot is no longer available. Please choose another."));
+        }
+
         const newAppt: Appointment = {
           id: `appt-${Date.now()}`,
           patientId: 'pat-active',
@@ -288,14 +350,12 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
           timeSlot,
           status: 'upcoming',
           type,
-          reason,
+          reason: reason.substring(0, 500), // Enforce input character limit
           fee: doc.fee,
           chatHistory: [
             { sender: 'doctor', text: `Hi ${activePatient.name}, thank you for booking. We will connect on ${date} at ${timeSlot}.`, time: 'Just now' }
           ]
         };
-
-        setAppointments(prev => [newAppt, ...prev]);
 
         const newNotification: Notification = {
           id: `not-${Date.now()}`,
@@ -306,143 +366,190 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
           time: 'Just now',
           read: false
         };
-        setNotifications(prev => [newNotification, ...prev]);
+
+        setSessionData(prev => ({
+          ...prev,
+          appointments: [newAppt, ...prev.appointments],
+          notifications: [newNotification, ...prev.notifications]
+        }));
 
         resolve(newAppt);
-      }, 1200);
+      }, 1000);
     });
   };
 
-  // 2. Cancel Appointment
+  // 2. Cancel Appointment (validation check)
   const cancelAppointment = (apptId: string) => {
-    setAppointments(prev => prev.map(a => {
-      if (a.id === apptId) {
-        const newNotification: Notification = {
-          id: `not-${Date.now()}`,
-          userId: a.doctorId,
-          role: 'doctor',
-          title: 'Consultation Cancelled',
-          message: `The consultation booked by ${activePatient.name} for ${a.date} has been cancelled.`,
-          time: 'Just now',
-          read: false
-        };
-        setNotifications(prevNotif => [newNotification, ...prevNotif]);
-        return { ...a, status: 'cancelled' as const };
-      }
-      return a;
-    }));
+    setSessionData(prev => {
+      const target = prev.appointments.find(a => a.id === apptId);
+      if (!target) return prev;
+      
+      // Prevent cancellation of finished consultations
+      if (target.status !== 'upcoming') return prev;
+
+      const newNotification: Notification = {
+        id: `not-${Date.now()}`,
+        userId: target.doctorId,
+        role: 'doctor',
+        title: 'Consultation Cancelled',
+        message: `The consultation booked by ${activePatient.name} for ${target.date} has been cancelled.`,
+        time: 'Just now',
+        read: false
+      };
+
+      const nextAppointments = prev.appointments.map(a => 
+        a.id === apptId ? { ...a, status: 'cancelled' as const } : a
+      );
+
+      return {
+        ...prev,
+        appointments: nextAppointments,
+        notifications: [newNotification, ...prev.notifications]
+      };
+    });
   };
 
   // 3. Add Prescription & Complete Consultation
   const addPrescription = (apptId: string, medicines: Medicine[], notes: string) => {
-    const appt = appointments.find(a => a.id === apptId);
-    if (!appt) return;
+    setSessionData(prev => {
+      const appt = prev.appointments.find(a => a.id === apptId);
+      if (!appt) return prev;
 
-    const rxId = `rx-${apptId}`;
-    const newPrescription: Prescription = {
-      id: rxId,
-      appointmentId: apptId,
-      patientId: appt.patientId,
-      patientName: appt.patientName,
-      doctorId: appt.doctorId,
-      doctorName: appt.doctorName,
-      date: new Date().toISOString().split('T')[0],
-      medicines,
-      notes,
-      signature: appt.doctorName
-    };
+      const rxId = `rx-${apptId}`;
+      const newPrescription: Prescription = {
+        id: rxId,
+        appointmentId: apptId,
+        patientId: appt.patientId,
+        patientName: appt.patientName,
+        doctorId: appt.doctorId,
+        doctorName: appt.doctorName,
+        date: new Date().toISOString().split('T')[0],
+        medicines: medicines.filter(m => m.name.trim() !== ''),
+        notes: notes.substring(0, 1000),
+        signature: appt.doctorName
+      };
 
-    setAppointments(prev => prev.map(a => {
-      if (a.id === apptId) {
-        return { 
-          ...a, 
-          status: 'completed' as const,
-          prescriptionId: rxId 
-        };
-      }
-      return a;
-    }));
+      const newReport: MedicalReport = {
+        id: `rep-${apptId}`,
+        patientId: appt.patientId,
+        patientName: appt.patientName,
+        date: new Date().toISOString().split('T')[0],
+        title: `${appt.doctorSpecialty} Summary Report`,
+        category: appt.doctorSpecialty,
+        result: `Patient consult for ${appt.reason}. Recommended treatment plan: ${medicines.map(m => m.name).join(', ')}. ${notes}`,
+        status: 'Normal'
+      };
 
-    setPrescriptions(prev => [newPrescription, ...prev]);
+      const newNotification: Notification = {
+        id: `not-${Date.now()}`,
+        userId: appt.patientId,
+        role: 'patient',
+        title: 'Prescription Uploaded',
+        message: `${appt.doctorName} uploaded your prescription and medical summary.`,
+        time: 'Just now',
+        read: false
+      };
 
-    const newReport: MedicalReport = {
-      id: `rep-${apptId}`,
-      patientId: appt.patientId,
-      patientName: appt.patientName,
-      date: new Date().toISOString().split('T')[0],
-      title: `${appt.doctorSpecialty} Summary Report`,
-      category: appt.doctorSpecialty,
-      result: `Patient consult for ${appt.reason}. Recommended treatment plan: ${medicines.map(m => m.name).join(', ')}. ${notes}`,
-      status: 'Normal'
-    };
-    setReports(prev => [newReport, ...prev]);
+      const nextAppointments = prev.appointments.map(a => 
+        a.id === apptId ? { ...a, status: 'completed' as const, prescriptionId: rxId } : a
+      );
 
-    const newNotification: Notification = {
-      id: `not-${Date.now()}`,
-      userId: appt.patientId,
-      role: 'patient',
-      title: 'Prescription Uploaded',
-      message: `${appt.doctorName} uploaded your prescription and medical summary.`,
-      time: 'Just now',
-      read: false
-    };
-    setNotifications(prev => [newNotification, ...prev]);
+      return {
+        ...prev,
+        appointments: nextAppointments,
+        prescriptions: [newPrescription, ...prev.prescriptions],
+        reports: [newReport, ...prev.reports],
+        notifications: [newNotification, ...prev.notifications]
+      };
+    });
   };
 
   // 4. Send Message in live consultation chat
   const sendMessage = (apptId: string, sender: 'patient' | 'doctor', text: string) => {
-    setAppointments(prev => prev.map(a => {
-      if (a.id === apptId) {
-        return {
-          ...a,
-          chatHistory: [
-            ...a.chatHistory,
-            { sender, text, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
-          ]
-        };
-      }
-      return a;
-    }));
+    if (!text.trim()) return;
+    setSessionData(prev => {
+      const nextAppointments = prev.appointments.map(a => {
+        if (a.id === apptId) {
+          const chatHistory = a.chatHistory || [];
+          return {
+            ...a,
+            chatHistory: [
+              ...chatHistory,
+              { sender, text: text.substring(0, 1000), time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+            ]
+          };
+        }
+        return a;
+      });
+
+      return {
+        ...prev,
+        appointments: nextAppointments
+      };
+    });
   };
 
   // 5. Approve Pending Hospital
   const approveHospital = (hospId: string) => {
-    setHospitals(prev => prev.map(h => {
-      if (h.id === hospId) {
-        return { ...h, status: 'approved' as const };
-      }
-      return h;
+    setSessionData(prev => ({
+      ...prev,
+      hospitals: prev.hospitals.map(h => h.id === hospId ? { ...h, status: 'approved' as const } : h)
     }));
   };
 
   // 6. Verify Pending Doctor
   const verifyDoctor = (docId: string) => {
-    setDoctors(prev => prev.map(d => {
-      if (d.id === docId) {
-        return { ...d, status: 'active' as const };
-      }
-      return d;
+    setSessionData(prev => ({
+      ...prev,
+      doctors: prev.doctors.map(d => d.id === docId ? { ...d, status: 'active' as const } : d)
     }));
   };
 
-  // 7. Manage Beds
+  // 7. Persisted Bed Grid Actions
+  const updateBedStatus = (bedId: number, status: Bed['status'], patientName?: string, admitDate?: string) => {
+    setSessionData(prev => {
+      const nextBeds = prev.bedsGrid.map(b => {
+        if (b.id === bedId) {
+          return {
+            ...b,
+            status,
+            patientName: status === 'occupied' ? patientName : undefined,
+            admitDate: status === 'occupied' ? admitDate : undefined
+          };
+        }
+        return b;
+      });
+
+      return {
+        ...prev,
+        bedsGrid: nextBeds
+      };
+    });
+  };
+
   const allocateBed = (hospId: string, count: number) => {
-    setHospitals(prev => prev.map(h => {
-      if (h.id === hospId) {
-        const nextOccupied = Math.min(h.bedsTotal, h.bedsOccupied + count);
-        return { ...h, bedsOccupied: nextOccupied };
-      }
-      return h;
+    setSessionData(prev => ({
+      ...prev,
+      hospitals: prev.hospitals.map(h => {
+        if (h.id === hospId) {
+          const nextOccupied = Math.min(h.bedsTotal, h.bedsOccupied + count);
+          return { ...h, bedsOccupied: nextOccupied };
+        }
+        return h;
+      })
     }));
   };
 
   const dischargeBed = (hospId: string, count: number) => {
-    setHospitals(prev => prev.map(h => {
-      if (h.id === hospId) {
-        const nextOccupied = Math.max(0, h.bedsOccupied - count);
-        return { ...h, bedsOccupied: nextOccupied };
-      }
-      return h;
+    setSessionData(prev => ({
+      ...prev,
+      hospitals: prev.hospitals.map(h => {
+        if (h.id === hospId) {
+          const nextOccupied = Math.max(0, h.bedsOccupied - count);
+          return { ...h, bedsOccupied: nextOccupied };
+        }
+        return h;
+      })
     }));
   };
 
@@ -454,11 +561,9 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // 9. Notifications helper
   const markNotificationsRead = (userId: string) => {
-    setNotifications(prev => prev.map(n => {
-      if (n.userId === userId) {
-        return { ...n, read: true };
-      }
-      return n;
+    setSessionData(prev => ({
+      ...prev,
+      notifications: prev.notifications.map(n => n.userId === userId ? { ...n, read: true } : n)
     }));
   };
 
@@ -480,6 +585,8 @@ export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children
       telehealthFee,
       theme,
       toggleTheme,
+      bedsGrid,
+      updateBedStatus,
       changeRole,
       bookAppointment,
       cancelAppointment,
